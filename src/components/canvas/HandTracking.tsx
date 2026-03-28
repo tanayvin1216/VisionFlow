@@ -86,35 +86,48 @@ export function HandTracking() {
 
   return (
     <div ref={containerRef} className="relative w-full h-full bg-black overflow-hidden">
-      {/* Top bar */}
-      <div className="absolute top-4 left-4 right-4 z-20 flex justify-between items-start">
-        {/* Status */}
-        <div className="flex items-center gap-2 px-3 py-2 bg-black/60 rounded-lg backdrop-blur-sm">
-          <div className={`w-2 h-2 rounded-full ${
-            mode === 'drawing' ? 'bg-blue-500 animate-pulse' :
-            handTrackingRunning ? 'bg-green-500' : 'bg-yellow-500'
-          }`} />
-          <span className="text-sm text-white/90 font-medium">
-            {mode === 'drawing' ? 'Drawing' :
-             handTrackingLoading ? 'Loading...' :
-             handTrackingRunning ? 'Ready' : 'Starting...'}
-          </span>
-        </div>
+      {/* Status pill — top left */}
+      <div className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(0,0,0,0.5)', borderRadius: 8 }}>
+        <div
+          className="rounded-full"
+          style={{
+            width: 7,
+            height: 7,
+            background: mode === 'drawing' ? '#6EE7B7' : handTrackingRunning ? '#6EE7B7' : '#FCD34D',
+            boxShadow: mode === 'drawing' ? '0 0 6px rgba(110,231,183,0.5)' : 'none',
+          }}
+        />
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', fontWeight: 500 }}>
+          {mode === 'drawing' ? 'Drawing' :
+           handTrackingLoading ? 'Loading...' :
+           handTrackingRunning ? 'Ready' : 'Starting...'}
+        </span>
+      </div>
 
-        {/* FPS */}
-        <div className="px-3 py-2 bg-black/60 rounded-lg backdrop-blur-sm">
-          <span className="text-sm font-mono text-white/70">{fps} fps</span>
-        </div>
+      {/* FPS — top right */}
+      <div className="absolute top-4 right-4 z-20 px-3 py-1.5" style={{ background: 'rgba(0,0,0,0.5)', borderRadius: 8 }}>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', fontVariantNumeric: 'tabular-nums' }}>
+          {fps} fps
+        </span>
       </div>
 
       {/* Error */}
       {error && (
         <div className="absolute inset-0 flex items-center justify-center z-30 bg-black/90">
           <div className="text-center p-8">
-            <p className="text-red-400 text-lg mb-4">{error}</p>
+            <p style={{ color: '#EF4444', fontSize: 16, marginBottom: 16 }}>{error}</p>
             <button
               onClick={startWebcam}
-              className="px-6 py-2 bg-white text-black rounded-full font-medium hover:bg-gray-200"
+              style={{
+                padding: '8px 24px',
+                background: 'white',
+                color: 'black',
+                border: 'none',
+                borderRadius: 8,
+                fontSize: 14,
+                fontWeight: 500,
+                cursor: 'pointer',
+              }}
             >
               Retry
             </button>
@@ -135,30 +148,48 @@ export function HandTracking() {
       {/* Drawing canvas */}
       <DrawingCanvas width={dimensions.width} height={dimensions.height} />
 
-      {/* Hand skeleton (subtle) */}
+      {/* Hand skeleton */}
       <HandLandmarksOverlay
         results={results}
         width={dimensions.width}
         height={dimensions.height}
       />
 
-      {/* Instructions - only when no hand detected and not drawing */}
+      {/* Instructions — when no hand detected */}
       {handTrackingRunning && !results?.landmarks?.length && !hasDrawing && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="text-center p-8 bg-black/70 rounded-2xl backdrop-blur max-w-sm">
-            <h2 className="text-2xl font-semibold text-white mb-6">VisionFlow</h2>
-            <div className="space-y-4 text-left">
+          <div
+            className="text-center"
+            style={{
+              padding: '32px 40px',
+              background: 'rgba(0,0,0,0.65)',
+              borderRadius: 16,
+              maxWidth: 340,
+            }}
+          >
+            <h2
+              style={{
+                fontFamily: 'var(--font-playfair), serif',
+                fontSize: 22,
+                fontWeight: 400,
+                color: 'white',
+                marginBottom: 24,
+              }}
+            >
+              VisionFlow
+            </h2>
+            <div className="flex flex-col gap-4 text-left">
               <div className="flex items-center gap-4">
-                <span className="text-2xl">🤏</span>
-                <p className="text-white/80">Pinch to draw</p>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', minWidth: 24 }}>01</span>
+                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)' }}>Pinch to draw</p>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-2xl">✋</span>
-                <p className="text-white/80">Open palm to clear</p>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', minWidth: 24 }}>02</span>
+                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)' }}>Open palm to clear</p>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-2xl">⏎</span>
-                <p className="text-white/80">Enter to submit</p>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', minWidth: 24 }}>03</span>
+                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)' }}>Enter to submit</p>
               </div>
             </div>
           </div>
@@ -167,8 +198,11 @@ export function HandTracking() {
 
       {/* Stroke count */}
       {hasDrawing && (
-        <div className="absolute bottom-4 left-4 z-20 px-3 py-2 bg-black/60 rounded-lg backdrop-blur-sm">
-          <span className="text-sm text-white/70">
+        <div
+          className="absolute bottom-4 left-4 z-20 px-3 py-1.5"
+          style={{ background: 'rgba(0,0,0,0.5)', borderRadius: 8 }}
+        >
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>
             {drawing.strokes.length + (drawing.currentStroke.length > 0 ? 1 : 0)} strokes
           </span>
         </div>

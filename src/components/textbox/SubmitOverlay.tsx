@@ -25,20 +25,21 @@ export function SubmitOverlay({ canvasImage, onComplete }: SubmitOverlayProps) {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-40 flex flex-col items-center justify-center"
       >
-        {/* White background overlay */}
+        {/* Warm background overlay */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="absolute inset-0 bg-white"
+          className="absolute inset-0"
+          style={{ background: 'var(--background)' }}
         />
 
         {/* Content */}
-        <div className="relative z-10 w-full max-w-3xl px-8 flex flex-col items-center">
+        <div className="relative z-10 w-full max-w-2xl px-8 flex flex-col items-center">
           {/* Drawing image */}
           {canvasImage && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, delay: 0.2 }}
               className="mb-8"
@@ -47,27 +48,46 @@ export function SubmitOverlay({ canvasImage, onComplete }: SubmitOverlayProps) {
               <img
                 src={canvasImage}
                 alt="Your drawing"
-                className="max-w-full max-h-64 rounded-lg shadow-lg"
-                style={{ filter: 'invert(1)' }}
+                className="max-w-full"
+                style={{
+                  maxHeight: 240,
+                  borderRadius: 12,
+                  border: '1px solid var(--border)',
+                  filter: 'invert(1)',
+                }}
               />
             </motion.div>
           )}
 
-          {/* Textbox reveal - using animation delay instead of state */}
+          {/* Prompt card */}
           <motion.div
             ref={textboxRef}
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.5, type: 'spring', stiffness: 100 }}
             className="w-full"
           >
-            <div className="bg-gray-100 rounded-xl p-6 shadow-sm">
-              <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap">
+            <div
+              style={{
+                background: 'var(--surface)',
+                borderRadius: 14,
+                padding: '24px 28px',
+                border: '1px solid var(--border)',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 16,
+                  lineHeight: 1.7,
+                  color: 'var(--foreground)',
+                  whiteSpace: 'pre-wrap',
+                }}
+              >
                 {inputText || 'No prompt provided'}
               </p>
             </div>
 
-            {/* Submit indicator */}
+            {/* Sending indicator */}
             {mode === 'submitting' && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -76,11 +96,14 @@ export function SubmitOverlay({ canvasImage, onComplete }: SubmitOverlayProps) {
                 className="flex items-center justify-center gap-2 mt-4"
               >
                 <motion.div
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 0.5, repeat: Infinity }}
-                  className="w-2 h-2 bg-blue-500 rounded-full"
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 0.6, repeat: Infinity }}
+                  className="rounded-full"
+                  style={{ width: 6, height: 6, background: 'var(--accent-warm, #C4553D)' }}
                 />
-                <span className="text-gray-500 text-sm">Sending to AI...</span>
+                <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                  Sending to AI...
+                </span>
               </motion.div>
             )}
           </motion.div>
@@ -92,23 +115,43 @@ export function SubmitOverlay({ canvasImage, onComplete }: SubmitOverlayProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="w-full mt-6"
+                className="w-full mt-5"
               >
-                <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
+                <div
+                  style={{
+                    background: 'var(--surface)',
+                    borderRadius: 14,
+                    padding: '24px 28px',
+                    border: '1px solid var(--border)',
+                  }}
+                >
                   {isLoading ? (
                     <div className="flex items-center gap-3">
                       <motion.div
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"
+                        className="rounded-full"
+                        style={{
+                          width: 18,
+                          height: 18,
+                          border: '2px solid var(--border)',
+                          borderTopColor: 'var(--foreground)',
+                        }}
                       />
-                      <span className="text-blue-600">Analyzing your drawing...</span>
+                      <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
+                        Analyzing your drawing...
+                      </span>
                     </div>
                   ) : (
                     <motion.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap"
+                      style={{
+                        fontSize: 16,
+                        lineHeight: 1.7,
+                        color: 'var(--foreground)',
+                        whiteSpace: 'pre-wrap',
+                      }}
                     >
                       {response}
                     </motion.p>
@@ -117,15 +160,28 @@ export function SubmitOverlay({ canvasImage, onComplete }: SubmitOverlayProps) {
 
                 {/* New drawing button */}
                 {mode === 'response' && !isLoading && (
-                  <motion.button
+                  <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
-                    onClick={onComplete}
-                    className="mt-6 mx-auto block px-6 py-3 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors"
+                    className="flex justify-end mt-5"
                   >
-                    New Drawing
-                  </motion.button>
+                    <button
+                      onClick={onComplete}
+                      style={{
+                        padding: '10px 24px',
+                        background: 'var(--foreground)',
+                        color: 'var(--surface)',
+                        border: 'none',
+                        borderRadius: 8,
+                        fontSize: 14,
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      New Drawing
+                    </button>
+                  </motion.div>
                 )}
               </motion.div>
             )}

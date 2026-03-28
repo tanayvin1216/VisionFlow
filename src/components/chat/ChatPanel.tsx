@@ -7,27 +7,55 @@ import type { ChatMessage } from '@/lib/store/app-store';
 
 const PANEL_SPRING = { type: 'spring' as const, stiffness: 300, damping: 35, mass: 0.8 };
 
-function MessageBubble({ message }: { message: ChatMessage }) {
+function formatTime(timestamp: number): string {
+  return new Date(timestamp).toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
+function MessageEntry({ message }: { message: ChatMessage }) {
   const isUser = message.role === 'user';
 
   return (
-    <div className={`flex flex-col gap-1 ${isUser ? 'items-end' : 'items-start'}`}>
-      {message.image && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={message.image}
-          alt="Drawing"
-          className="max-w-[160px] border border-[#2a2a3a] mb-1"
-          style={{ imageRendering: 'pixelated' }}
-        />
-      )}
-      <div
-        className={`max-w-[85%] px-3 py-2 ${
-          isUser ? 'bg-[#1e1e2e] text-white' : 'bg-[#16161e] text-[#c0c0d0]'
-        }`}
-        style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.5' }}
+    <div
+      className="flex gap-4 px-5 py-4"
+      style={{ borderBottom: '1px solid var(--border)' }}
+    >
+      <span
+        className="shrink-0"
+        style={{
+          fontSize: 13,
+          color: 'var(--text-muted)',
+          minWidth: 76,
+          fontVariantNumeric: 'tabular-nums',
+        }}
       >
-        {message.content}
+        {formatTime(message.timestamp)}
+      </span>
+      <div className="flex-1 min-w-0">
+        {message.image && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={message.image}
+            alt="Drawing"
+            className="max-w-[140px] mb-2"
+            style={{
+              borderRadius: 8,
+              border: '1px solid var(--border)',
+            }}
+          />
+        )}
+        <p
+          style={{
+            fontSize: 14,
+            lineHeight: 1.6,
+            color: isUser ? 'var(--foreground)' : 'var(--text-secondary)',
+          }}
+        >
+          {message.content}
+        </p>
       </div>
     </div>
   );
@@ -35,31 +63,35 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 
 function LoadingIndicator() {
   return (
-    <div className="flex items-start">
-      <div
-        className="bg-[#16161e] text-[#4a6fa5] px-3 py-2"
-        style={{ fontFamily: 'monospace', fontSize: '13px' }}
+    <div
+      className="flex gap-4 px-5 py-4"
+      style={{ borderBottom: '1px solid var(--border)' }}
+    >
+      <span
+        className="shrink-0"
+        style={{ fontSize: 13, color: 'var(--text-muted)', minWidth: 76 }}
       >
-        <span className="inline-flex gap-1">
-          <motion.span
-            animate={{ opacity: [0.3, 1, 0.3] }}
-            transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
-          >
-            _
-          </motion.span>
-          <motion.span
-            animate={{ opacity: [0.3, 1, 0.3] }}
-            transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
-          >
-            _
-          </motion.span>
-          <motion.span
-            animate={{ opacity: [0.3, 1, 0.3] }}
-            transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
-          >
-            _
-          </motion.span>
-        </span>
+        &middot;&middot;&middot;
+      </span>
+      <div className="flex items-center gap-1.5">
+        <motion.span
+          className="inline-block rounded-full"
+          style={{ width: 5, height: 5, background: 'var(--text-muted)' }}
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 1.2, repeat: Infinity, delay: 0 }}
+        />
+        <motion.span
+          className="inline-block rounded-full"
+          style={{ width: 5, height: 5, background: 'var(--text-muted)' }}
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
+        />
+        <motion.span
+          className="inline-block rounded-full"
+          style={{ width: 5, height: 5, background: 'var(--text-muted)' }}
+          animate={{ opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }}
+        />
       </div>
     </div>
   );
@@ -78,7 +110,6 @@ export function ChatPanel() {
     isLoading,
   } = useAppStore();
 
-  // Auto-scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
@@ -98,15 +129,12 @@ export function ChatPanel() {
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        // Submit is handled externally via the global submit flow
-        // Dispatch a custom event that page.tsx can listen to
         window.dispatchEvent(new CustomEvent('visionflow:submit'));
       }
     },
     []
   );
 
-  // Focus input when panel opens
   useEffect(() => {
     if (chatOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
@@ -117,7 +145,6 @@ export function ChatPanel() {
     <AnimatePresence>
       {chatOpen && (
         <>
-          {/* Non-blocking backdrop — allows canvas interaction */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -126,7 +153,6 @@ export function ChatPanel() {
             style={{ pointerEvents: 'none' }}
           />
 
-          {/* Panel */}
           <motion.aside
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
@@ -134,55 +160,71 @@ export function ChatPanel() {
             transition={PANEL_SPRING}
             className="fixed top-0 right-0 h-full z-40 flex flex-col"
             style={{
-              width: 'min(400px, 100vw)',
-              background: '#111116',
-              borderLeft: '1px solid #1e1e2e',
+              width: 'min(420px, 100vw)',
+              background: 'var(--surface)',
+              borderLeft: '1px solid var(--border)',
               pointerEvents: 'auto',
             }}
           >
             {/* Header */}
             <div
               className="flex items-center justify-between px-5 py-4 shrink-0"
-              style={{ borderBottom: '1px solid #1e1e2e' }}
+              style={{ borderBottom: '1px solid var(--border)' }}
             >
               <span
                 style={{
-                  fontFamily: 'monospace',
-                  fontSize: '12px',
-                  letterSpacing: '0.1em',
-                  color: '#4a6fa5',
-                  textTransform: 'uppercase',
+                  fontFamily: 'var(--font-playfair), serif',
+                  fontSize: 16,
+                  fontWeight: 500,
+                  color: 'var(--foreground)',
                 }}
               >
-                VisionFlow
+                Activity
               </span>
               <button
                 onClick={handleClose}
-                className="text-[#505068] hover:text-[#c0c0d0] transition-colors"
-                style={{ fontFamily: 'monospace', fontSize: '16px', lineHeight: 1 }}
+                className="transition-colors"
+                style={{
+                  color: 'var(--text-muted)',
+                  fontSize: 20,
+                  lineHeight: 1,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '2px 6px',
+                  borderRadius: 4,
+                }}
                 aria-label="Close chat"
               >
-                ×
+                &times;
               </button>
             </div>
 
+            {/* Section label */}
+            <div
+              className="px-5 pt-4 pb-2"
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase' as const,
+                color: 'var(--text-muted)',
+              }}
+            >
+              Today
+            </div>
+
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+            <div className="flex-1 overflow-y-auto flex flex-col">
               {messages.length === 0 && !isLoading && (
-                <p
-                  className="text-center"
-                  style={{
-                    fontFamily: 'monospace',
-                    fontSize: '12px',
-                    color: '#303044',
-                    marginTop: '40px',
-                  }}
-                >
-                  no messages yet
-                </p>
+                <div className="flex-1 flex items-center justify-center">
+                  <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                    No activity yet
+                  </p>
+                </div>
               )}
-              {messages.map((message) => (
-                <MessageBubble key={message.id} message={message} />
+              {messages.map((message: ChatMessage) => (
+                <MessageEntry key={message.id} message={message} />
               ))}
               {isLoading && <LoadingIndicator />}
               <div ref={messagesEndRef} />
@@ -190,10 +232,10 @@ export function ChatPanel() {
 
             {/* Input */}
             <div
-              className="shrink-0 px-4 py-3"
-              style={{ borderTop: '1px solid #1e1e2e' }}
+              className="shrink-0 px-5 py-4"
+              style={{ borderTop: '1px solid var(--border)' }}
             >
-              <div className="flex gap-2 items-end">
+              <div className="flex gap-3 items-end">
                 <textarea
                   ref={inputRef}
                   value={inputText}
@@ -201,13 +243,17 @@ export function ChatPanel() {
                   onKeyDown={handleKeyDown}
                   placeholder="Ask about your drawing..."
                   rows={1}
-                  className="flex-1 bg-[#0d0d10] text-white placeholder-[#303044] px-3 py-2 resize-none focus:outline-none"
+                  className="flex-1 resize-none focus:outline-none"
                   style={{
-                    fontFamily: 'monospace',
-                    fontSize: '13px',
-                    border: '1px solid #1e1e2e',
-                    minHeight: '36px',
-                    maxHeight: '120px',
+                    fontSize: 14,
+                    lineHeight: 1.5,
+                    color: 'var(--foreground)',
+                    background: '#FAF7F4',
+                    border: '1px solid var(--border)',
+                    borderRadius: 10,
+                    padding: '10px 14px',
+                    minHeight: 40,
+                    maxHeight: 120,
                   }}
                   onInput={(e) => {
                     const target = e.currentTarget;
@@ -217,12 +263,26 @@ export function ChatPanel() {
                 />
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent('visionflow:submit'))}
-                  className="text-[#4a6fa5] hover:text-[#6a8fc5] transition-colors shrink-0 pb-2"
-                  style={{ fontFamily: 'monospace', fontSize: '18px', lineHeight: 1 }}
+                  className="shrink-0 transition-colors"
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 8,
+                    background: 'var(--foreground)',
+                    color: 'var(--surface)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 14,
+                  }}
                   aria-label="Send message"
                   disabled={isLoading}
                 >
-                  ▶
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 8h10M9 4l4 4-4 4" />
+                  </svg>
                 </button>
               </div>
             </div>

@@ -4,41 +4,13 @@ import { useAppStore } from '@/lib/store/app-store';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const modeConfig = {
-  idle: {
-    label: 'Ready',
-    color: 'bg-gray-500',
-    textColor: 'text-gray-400',
-  },
-  drawing: {
-    label: 'Drawing',
-    color: 'bg-blue-500',
-    textColor: 'text-blue-400',
-  },
-  submitting: {
-    label: 'Submitting',
-    color: 'bg-yellow-500',
-    textColor: 'text-yellow-400',
-  },
-  thinking: {
-    label: 'Thinking',
-    color: 'bg-purple-500',
-    textColor: 'text-purple-400',
-  },
-  response: {
-    label: 'Response',
-    color: 'bg-green-500',
-    textColor: 'text-green-400',
-  },
-  model: {
-    label: 'Model',
-    color: 'bg-orange-500',
-    textColor: 'text-orange-400',
-  },
-  annotate: {
-    label: 'Annotate',
-    color: 'bg-teal-500',
-    textColor: 'text-teal-400',
-  },
+  idle: { label: 'Ready', color: '#9E9891' },
+  drawing: { label: 'Drawing', color: '#6EE7B7' },
+  submitting: { label: 'Submitting', color: '#FCD34D' },
+  thinking: { label: 'Thinking', color: '#C4553D' },
+  response: { label: 'Response', color: '#6EE7B7' },
+  model: { label: 'Model', color: '#F59E0B' },
+  annotate: { label: 'Annotate', color: '#2DD4BF' },
 };
 
 export function ModeIndicator() {
@@ -54,14 +26,16 @@ export function ModeIndicator() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
           transition={{ duration: 0.2 }}
-          className="flex items-center gap-2 px-4 py-2 bg-black/60 rounded-full backdrop-blur-sm"
+          className="flex items-center gap-2 px-4 py-2"
+          style={{ background: 'rgba(0,0,0,0.5)', borderRadius: 8 }}
         >
           <motion.div
-            className={`w-2 h-2 rounded-full ${config.color}`}
+            className="rounded-full"
+            style={{ width: 7, height: 7, background: config.color }}
             animate={mode === 'drawing' || mode === 'thinking' ? { scale: [1, 1.2, 1] } : {}}
             transition={{ duration: 0.5, repeat: Infinity }}
           />
-          <span className={`text-sm font-medium ${config.textColor}`}>
+          <span style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.75)' }}>
             {config.label}
           </span>
         </motion.div>

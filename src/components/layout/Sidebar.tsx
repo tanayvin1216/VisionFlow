@@ -85,24 +85,24 @@ export function Sidebar() {
 
   return (
     <aside
-      className="h-full flex flex-col shrink-0 border-r"
+      className="h-full flex flex-col shrink-0"
       style={{
-        width: 220,
-        background: '#FFFFFF',
-        borderColor: 'var(--border)',
+        width: 230,
+        background: '#1C1917',
+        borderRight: '1px solid #2E2A26',
       }}
     >
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 pt-5 pb-4">
-        <span style={{ color: 'var(--text-secondary)' }}>
+      <div className="flex items-center gap-2.5 px-5 pt-6 pb-5">
+        <span style={{ color: '#A8978A' }}>
           <HandIcon />
         </span>
         <span
           style={{
             fontFamily: 'var(--font-playfair), serif',
-            fontSize: 18,
+            fontSize: 19,
             fontWeight: 500,
-            color: 'var(--foreground)',
+            color: '#F5F0EB',
             letterSpacing: '-0.01em',
           }}
         >
@@ -110,35 +110,46 @@ export function Sidebar() {
         </span>
         <span
           style={{
-            fontSize: 11,
-            fontWeight: 500,
-            color: 'var(--text-muted)',
-            background: '#F5F1ED',
-            padding: '2px 8px',
+            fontSize: 10,
+            fontWeight: 600,
+            color: '#8A7E74',
+            background: '#2E2A26',
+            padding: '2px 7px',
             borderRadius: 4,
-            marginLeft: 2,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
           }}
         >
           Beta
         </span>
       </div>
 
+      {/* Divider */}
+      <div style={{ height: 1, background: '#2E2A26', margin: '0 20px' }} />
+
       {/* Mode navigation */}
-      <nav className="px-3 mt-1 flex flex-col gap-0.5">
+      <nav className="px-3 mt-4 flex flex-col gap-1">
         {NAV_ITEMS.map(({ mode, label, shortcut, icon }) => {
           const isActive = interactionMode === mode;
           return (
             <button
               key={mode}
               onClick={() => handleModeSwitch(mode)}
-              className="flex items-center gap-3 w-full text-left transition-colors"
+              className="flex items-center gap-3 w-full text-left"
               style={{
-                padding: '8px 12px',
+                padding: '10px 12px',
                 borderRadius: 8,
                 fontSize: 14,
                 fontWeight: isActive ? 500 : 400,
-                color: isActive ? 'var(--foreground)' : 'var(--text-secondary)',
-                background: isActive ? '#F5F1ED' : 'transparent',
+                color: isActive ? '#F5F0EB' : '#8A7E74',
+                background: isActive ? '#2E2A26' : 'transparent',
+                transition: 'background 0.15s ease, color 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) e.currentTarget.style.background = '#252220';
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) e.currentTarget.style.background = 'transparent';
               }}
               aria-pressed={isActive}
             >
@@ -147,8 +158,8 @@ export function Sidebar() {
               <span
                 style={{
                   fontSize: 11,
-                  color: 'var(--text-muted)',
-                  opacity: isActive ? 1 : 0.6,
+                  color: isActive ? '#A8978A' : '#5C544D',
+                  fontVariantNumeric: 'tabular-nums',
                 }}
               >
                 {shortcut}
@@ -158,33 +169,34 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Session stats card */}
+      {/* Session stats */}
       <div
         className="mx-4 mt-6 p-4"
         style={{
-          background: '#FAF7F4',
-          borderRadius: 12,
+          background: '#252220',
+          borderRadius: 10,
+          border: '1px solid #2E2A26',
         }}
       >
-        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--foreground)', marginBottom: 10 }}>
+        <p style={{ fontSize: 11, fontWeight: 600, color: '#A8978A', marginBottom: 12, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
           Session
         </p>
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center" style={{ fontSize: 12 }}>
-            <span style={{ color: 'var(--text-secondary)' }}>FPS</span>
-            <span style={{ fontWeight: 500, color: 'var(--foreground)', fontVariantNumeric: 'tabular-nums' }}>
+        <div className="flex flex-col gap-3">
+          <div className="flex justify-between items-center" style={{ fontSize: 13 }}>
+            <span style={{ color: '#6B6360' }}>FPS</span>
+            <span style={{ fontWeight: 500, color: '#D4CBC3', fontVariantNumeric: 'tabular-nums' }}>
               {fps}
             </span>
           </div>
-          <div className="flex justify-between items-center" style={{ fontSize: 12 }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Strokes</span>
-            <span style={{ fontWeight: 500, color: 'var(--foreground)', fontVariantNumeric: 'tabular-nums' }}>
+          <div className="flex justify-between items-center" style={{ fontSize: 13 }}>
+            <span style={{ color: '#6B6360' }}>Strokes</span>
+            <span style={{ fontWeight: 500, color: '#D4CBC3', fontVariantNumeric: 'tabular-nums' }}>
               {strokeCount}
             </span>
           </div>
-          <div className="flex justify-between items-center" style={{ fontSize: 12 }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Mode</span>
-            <span style={{ fontWeight: 500, color: 'var(--foreground)' }}>
+          <div className="flex justify-between items-center" style={{ fontSize: 13 }}>
+            <span style={{ color: '#6B6360' }}>Mode</span>
+            <span style={{ fontWeight: 500, color: '#D4CBC3' }}>
               {interactionMode.charAt(0).toUpperCase() + interactionMode.slice(1)}
             </span>
           </div>
@@ -195,17 +207,25 @@ export function Sidebar() {
       <div className="flex-1" />
 
       {/* Bottom actions */}
-      <div className="px-3 pb-5 flex flex-col gap-0.5">
+      <div className="px-3 pb-5">
+        <div style={{ height: 1, background: '#2E2A26', marginBottom: 12, marginLeft: 8, marginRight: 8 }} />
         <button
           onClick={toggleChat}
-          className="flex items-center gap-3 w-full text-left transition-colors"
+          className="flex items-center gap-3 w-full text-left"
           style={{
-            padding: '8px 12px',
+            padding: '10px 12px',
             borderRadius: 8,
             fontSize: 14,
             fontWeight: chatOpen ? 500 : 400,
-            color: chatOpen ? 'var(--foreground)' : 'var(--text-secondary)',
-            background: chatOpen ? '#F5F1ED' : 'transparent',
+            color: chatOpen ? '#F5F0EB' : '#8A7E74',
+            background: chatOpen ? '#2E2A26' : 'transparent',
+            transition: 'background 0.15s ease, color 0.15s ease',
+          }}
+          onMouseEnter={(e) => {
+            if (!chatOpen) e.currentTarget.style.background = '#252220';
+          }}
+          onMouseLeave={(e) => {
+            if (!chatOpen) e.currentTarget.style.background = 'transparent';
           }}
         >
           <ChatIcon />

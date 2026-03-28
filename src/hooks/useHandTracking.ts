@@ -89,20 +89,22 @@ function detectGesture(landmarks: NormalizedLandmark[]): GestureState {
 
   const allCurled = !indexExtended && middleCurled && ringCurled && pinkyCurled;
 
-  // Open palm FIRST — if all fingers are clearly extended, it's never a pinch
-  // (thumb-index can appear close in 2D projection even with open hand)
-  if (allExtended) {
-    wasPinching = false;
-    return { type: 'open_palm', confidence: 0.9 };
-  }
-
-  // Pinch with hysteresis — but only if fingers aren't all extended
+  // Pinch: purely thumb tip ↔ index tip distance
+  // Index must be curling toward thumb (not fully extended pointing away)
+  // Other fingers don't matter — people pinch with middle/ring/pinky in any position
+  const indexCurlingTowardThumb = indexTip.y > indexPip.y || thumbIndexDist < 0.06;
   const pinchThreshold = wasPinching ? PINCH_EXIT_THRESHOLD : PINCH_ENTER_THRESHOLD;
-  if (thumbIndexDist < pinchThreshold && !middleExtended) {
+
+  if (thumbIndexDist < pinchThreshold && indexCurlingTowardThumb) {
     wasPinching = true;
     return { type: 'pinch', confidence: 0.95 };
   }
   wasPinching = false;
+
+  // Open palm: all fingers extended and not pinching
+  if (allExtended) {
+    return { type: 'open_palm', confidence: 0.9 };
+  }
 
   // Peace: index + middle extended, ring + pinky curled
   if (indexExtended && middleExtended && ringCurled && pinkyCurled) {

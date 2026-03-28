@@ -118,9 +118,6 @@ export default function Home() {
             </div>
           )}
 
-          {/* Invisible textbox for voice input — available in all modes when chat is closed */}
-          {!chatOpen && <InvisibleTextbox onSubmit={handleSubmit} />}
-
           {/* Contextual hints - bottom of canvas card */}
           {mode === 'idle' && !chatOpen && isDrawMode && (
             <div
@@ -151,6 +148,9 @@ export default function Home() {
           )}
         </div>
       </main>
+
+      {/* Invisible textbox for voice input — outside canvas so it works in all modes */}
+      {!chatOpen && <InvisibleTextbox onSubmit={handleSubmit} />}
 
       {/* Chat panel */}
       <ChatPanel />

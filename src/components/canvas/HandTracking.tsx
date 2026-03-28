@@ -185,7 +185,7 @@ export function HandTracking() {
               </div>
               <div className="flex items-center gap-4">
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', minWidth: 24 }}>02</span>
-                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)' }}>Open palm to clear</p>
+                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)' }}>Two palms to clear</p>
               </div>
               <div className="flex items-center gap-4">
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', minWidth: 24 }}>03</span>

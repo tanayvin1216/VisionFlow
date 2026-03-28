@@ -35,8 +35,9 @@ interface Velocity {
 }
 
 function isInteracting(hand: HandData): boolean {
-  const g = hand.gesture.type;
-  return g === 'grab' || g === 'pinch' || g === 'pointing';
+  // Any detected hand controls the model — natural behavior
+  // Only 'idle' (no hand / unrecognized) is excluded
+  return hand.gesture.type !== 'idle';
 }
 
 function clamp(value: number, min: number, max: number): number {

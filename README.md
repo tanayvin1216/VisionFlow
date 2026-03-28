@@ -57,7 +57,7 @@ The result: you manipulate a 3D influenza virion with your bare hands, speak a q
 
 ## Three Modes
 
-| Key | Mode | What It Does |
+| Screen | Mode | What It Does |
 |-----|------|-------------|
 | `1` | **Draw** | Pinch to draw in the air over your webcam feed. Two hands to clear. |
 | `2` | **3D Model** | Pinch to rotate a scientifically accurate influenza A virion. Two hands to zoom. |

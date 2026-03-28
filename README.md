@@ -25,6 +25,12 @@
 ![GitHub stars](https://img.shields.io/github/stars/tanayvin1216/VisionFlow?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/tanayvin1216/VisionFlow?style=social)
 
+<br/>
+
+### Demo
+
+<img src="https://github.com/user-attachments/assets/421d36b1-2e39-4933-90b6-f746b76673b8" alt="VisionFlow Demo" width="720" />
+
 </div>
 
 ---
@@ -50,8 +56,6 @@ Three things running together:
 **Vision AI** — Whatever you drew or whatever the 3D model looks like gets screenshotted and sent to a multimodal AI (supports OpenAI, Anthropic, and Gemini). It sees what you see and answers what you asked.
 
 So you can rotate a 3D influenza virion with your hands, ask "what are the green spikes," and get an actual answer. Without touching the keyboard once.
-![visionflowdemo_compressed](https://github.com/user-attachments/assets/421d36b1-2e39-4933-90b6-f746b76673b8)
-
 
 ---
 

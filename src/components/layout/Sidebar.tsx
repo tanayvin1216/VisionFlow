@@ -3,15 +3,15 @@
 import { useAppStore } from '@/lib/store/app-store';
 import type { InteractionMode } from '@/lib/store/app-store';
 
-/* ── Icons matching Wispr Flow's clean line-icon style ── */
-
-function WaveformIcon() {
+/* ── Wispr Flow logo — 5 rounded bars matching the actual brand logo ── */
+function WisprFlowLogo() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-      <rect x="1" y="7" width="2.5" height="6" rx="1" />
-      <rect x="5.5" y="4" width="2.5" height="12" rx="1" />
-      <rect x="10" y="2" width="2.5" height="16" rx="1" />
-      <rect x="14.5" y="5" width="2.5" height="10" rx="1" />
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="#1A1A1A">
+      <rect x="0" y="6" width="3" height="12" rx="1.5" />
+      <rect x="5" y="8" width="3" height="8" rx="1.5" />
+      <rect x="10" y="2" width="3" height="20" rx="1.5" />
+      <rect x="15" y="5" width="3" height="14" rx="1.5" />
+      <rect x="20" y="7" width="3" height="10" rx="1.5" />
     </svg>
   );
 }
@@ -81,7 +81,7 @@ interface NavItemConfig {
 }
 
 const NAV_ITEMS: NavItemConfig[] = [
-  { mode: 'draw', label: 'Draw', icon: <GridIcon /> },
+  { mode: 'draw', label: 'Home', icon: <GridIcon /> },
   { mode: 'model', label: '3D Model', icon: <CubeIcon /> },
   { mode: 'annotate', label: 'Annotate', icon: <MarkerIcon /> },
 ];
@@ -110,18 +110,16 @@ export function Sidebar() {
         borderRight: '1px solid #E8E4DF',
       }}
     >
-      {/* Logo — matches Wispr Flow's waveform + "Flow" + badge */}
+      {/* Logo — Wispr Flow waveform + "Flow" in rounded sans-serif + badge */}
       <div className="flex items-center gap-2 px-5 pt-5 pb-6">
-        <span style={{ color: '#1A1A1A' }}>
-          <WaveformIcon />
-        </span>
+        <WisprFlowLogo />
         <span
           style={{
-            fontFamily: 'var(--font-playfair), serif',
-            fontSize: 18,
-            fontWeight: 500,
+            fontFamily: 'var(--font-dm-sans), system-ui, sans-serif',
+            fontSize: 20,
+            fontWeight: 700,
             color: '#1A1A1A',
-            letterSpacing: '-0.01em',
+            letterSpacing: '-0.02em',
           }}
         >
           Flow
@@ -176,12 +174,10 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Session info card — matches Wispr Flow's trial info card */}
+      {/* Session info */}
       <div
         className="mx-4 mt-auto mb-4 px-4 py-4"
-        style={{
-          borderTop: '1px solid #E8E4DF',
-        }}
+        style={{ borderTop: '1px solid #E8E4DF' }}
       >
         <p style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A', marginBottom: 4 }}>
           VisionFlow Session
@@ -189,15 +185,7 @@ export function Sidebar() {
         <p style={{ fontSize: 12, color: '#6B6560', marginBottom: 8 }}>
           {fps} fps tracking
         </p>
-        <div
-          style={{
-            height: 3,
-            background: '#E8E4DF',
-            borderRadius: 2,
-            marginBottom: 10,
-            overflow: 'hidden',
-          }}
-        >
+        <div style={{ height: 3, background: '#E8E4DF', borderRadius: 2, marginBottom: 10, overflow: 'hidden' }}>
           <div
             style={{
               height: '100%',
@@ -213,7 +201,7 @@ export function Sidebar() {
         </p>
       </div>
 
-      {/* Bottom links — matches Wispr Flow bottom nav */}
+      {/* Bottom nav */}
       <div className="px-3 pb-4 flex flex-col gap-0.5">
         <button
           onClick={toggleChat}
@@ -239,25 +227,11 @@ export function Sidebar() {
           <ChatIcon />
           <span>Chat</span>
         </button>
-        <div
-          className="flex items-center gap-3 w-full"
-          style={{
-            padding: '8px 12px',
-            fontSize: 13,
-            color: '#6B6560',
-          }}
-        >
+        <div className="flex items-center gap-3 w-full" style={{ padding: '8px 12px', fontSize: 13, color: '#6B6560' }}>
           <SettingsIcon />
           <span>Settings</span>
         </div>
-        <div
-          className="flex items-center gap-3 w-full"
-          style={{
-            padding: '8px 12px',
-            fontSize: 13,
-            color: '#6B6560',
-          }}
-        >
+        <div className="flex items-center gap-3 w-full" style={{ padding: '8px 12px', fontSize: 13, color: '#6B6560' }}>
           <HelpIcon />
           <span>Help</span>
         </div>

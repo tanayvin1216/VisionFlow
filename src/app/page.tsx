@@ -100,134 +100,128 @@ export default function Home() {
   void reset;
 
   return (
-    <div className="flex h-screen" style={{ background: 'var(--background)' }}>
+    <div className="flex h-screen" style={{ background: '#FAF7F4' }}>
       <Sidebar />
 
-      <main className="flex-1 overflow-y-auto">
-        <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 48px' }}>
+      {/* Main content — flex-1 so it shrinks when chat opens */}
+      <main
+        className="flex-1 flex flex-col overflow-hidden"
+        style={{ transition: 'flex 0.3s ease' }}
+      >
+        {/* Scrollable inner content */}
+        <div className="flex-1 overflow-y-auto">
+          <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 40px', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
 
-          {/* Header — "Welcome back," + stats (matches Wispr Flow) */}
-          <div className="flex items-baseline justify-between mb-8">
-            <h1
-              style={{
-                fontFamily: 'var(--font-playfair), serif',
-                fontSize: 30,
-                fontWeight: 400,
-                color: '#1A1A1A',
-              }}
-            >
-              Welcome back, Tanay
-            </h1>
-            <div className="flex items-center gap-6" style={{ fontSize: 13, color: '#6B6560' }}>
-              <span>
-                <span style={{ marginRight: 5 }}>&#128293;</span>
-                {fps} fps
-              </span>
-              <span>
-                <span style={{ marginRight: 5 }}>&#9997;&#65039;</span>
-                {interactionMode === 'draw' ? 'Draw' : interactionMode === 'model' ? '3D Model' : 'Annotate'}
-              </span>
-              <span>
-                <span style={{ marginRight: 5 }}>&#127942;</span>
-                {mode === 'idle' ? 'Ready' : mode === 'drawing' ? 'Drawing' : mode}
-              </span>
-            </div>
-          </div>
-
-          {/* Webcam/Canvas card */}
-          <div
-            ref={containerRef}
-            className="relative overflow-hidden mb-8"
-            style={{
-              borderRadius: 14,
-              background: '#0A0A0A',
-              height: 'min(460px, 50vh)',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-            }}
-          >
-            <div
-              className={`absolute inset-0 ${isModelOrAnnotate ? 'opacity-0 pointer-events-none' : ''}`}
-            >
-              <HandTracking />
+            {/* Header */}
+            <div className="flex items-baseline justify-between mb-6 shrink-0">
+              <h1
+                style={{
+                  fontFamily: 'var(--font-playfair), serif',
+                  fontSize: 28,
+                  fontWeight: 400,
+                  color: '#1A1A1A',
+                }}
+              >
+                Welcome back, Tanay
+              </h1>
+              <div className="flex items-center gap-5" style={{ fontSize: 13, color: '#6B6560' }}>
+                <span>
+                  <span style={{ marginRight: 4 }}>&#128293;</span>
+                  {fps} fps
+                </span>
+                <span>
+                  <span style={{ marginRight: 4 }}>&#9997;&#65039;</span>
+                  {interactionMode === 'draw' ? 'Draw' : interactionMode === 'model' ? '3D Model' : 'Annotate'}
+                </span>
+                <span>
+                  <span style={{ marginRight: 4 }}>&#127942;</span>
+                  {mode === 'idle' ? 'Ready' : mode === 'drawing' ? 'Drawing' : mode}
+                </span>
+              </div>
             </div>
 
-            {isModelOrAnnotate && (
-              <div className="absolute inset-0">
-                <ModelScene />
-              </div>
-            )}
-
-            {/* Contextual hints */}
-            {mode === 'idle' && !chatOpen && isDrawMode && (
-              <div
-                className="absolute bottom-4 left-5 z-20"
-                style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}
-              >
-                <kbd style={{ color: 'rgba(255,255,255,0.55)' }}>Enter</kbd>
-                {' '}to submit
-              </div>
-            )}
-
-            {interactionMode === 'model' && (
-              <div
-                className="absolute bottom-4 left-5 z-20"
-                style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}
-              >
-                grab to rotate &middot; two hands to zoom + pan
-              </div>
-            )}
-
-            {interactionMode === 'annotate' && (
-              <div
-                className="absolute bottom-4 left-5 z-20"
-                style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}
-              >
-                pinch to draw &middot; two hands to clear
-              </div>
-            )}
-          </div>
-
-          {/* TODAY activity log — matches Wispr Flow's activity list */}
-          <div>
-            <p
-              style={{
-                fontSize: 12,
-                fontWeight: 600,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                color: '#9E9891',
-                marginBottom: 12,
-              }}
-            >
-              Today
-            </p>
-
+            {/* Webcam/Canvas — takes all remaining vertical space */}
             <div
+              ref={containerRef}
+              className="relative overflow-hidden shrink-0"
               style={{
-                background: '#FFFFFF',
-                borderRadius: 12,
-                border: '1px solid #E8E4DF',
-                overflow: 'hidden',
+                borderRadius: 14,
+                background: '#0A0A0A',
+                flex: '1 1 0',
+                minHeight: 360,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
               }}
             >
-              {messages.length === 0 ? (
-                <div className="px-6 py-5" style={{ color: '#9E9891', fontSize: 14 }}>
-                  No activity yet — draw something and hit Enter
+              <div className={`absolute inset-0 ${isModelOrAnnotate ? 'opacity-0 pointer-events-none' : ''}`}>
+                <HandTracking />
+              </div>
+
+              {isModelOrAnnotate && (
+                <div className="absolute inset-0">
+                  <ModelScene />
                 </div>
-              ) : (
-                messages.map((msg: ChatMessage) => (
-                  <ActivityEntry key={msg.id} message={msg} />
-                ))
               )}
+
+              {mode === 'idle' && !chatOpen && isDrawMode && (
+                <div className="absolute bottom-4 left-5 z-20" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
+                  <kbd style={{ color: 'rgba(255,255,255,0.55)' }}>Enter</kbd>{' '}to submit
+                </div>
+              )}
+
+              {interactionMode === 'model' && (
+                <div className="absolute bottom-4 left-5 z-20" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
+                  grab to rotate &middot; two hands to zoom + pan
+                </div>
+              )}
+
+              {interactionMode === 'annotate' && (
+                <div className="absolute bottom-4 left-5 z-20" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
+                  pinch to draw &middot; two hands to clear
+                </div>
+              )}
+            </div>
+
+            {/* TODAY activity log — below the canvas */}
+            <div className="shrink-0 mt-6 pb-8">
+              <p
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  color: '#9E9891',
+                  marginBottom: 10,
+                }}
+              >
+                Today
+              </p>
+              <div
+                style={{
+                  background: '#FFFFFF',
+                  borderRadius: 12,
+                  border: '1px solid #E8E4DF',
+                  overflow: 'hidden',
+                }}
+              >
+                {messages.length === 0 ? (
+                  <div className="px-6 py-5" style={{ color: '#9E9891', fontSize: 14 }}>
+                    No activity yet — draw something and hit Enter
+                  </div>
+                ) : (
+                  messages.map((msg: ChatMessage) => (
+                    <ActivityEntry key={msg.id} message={msg} />
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Invisible textbox for voice input — outside canvas so it works in all modes */}
+      {/* Invisible textbox for voice input */}
       {!chatOpen && <InvisibleTextbox onSubmit={handleSubmit} />}
 
-      {/* Chat panel slide-over */}
+      {/* Chat panel — inline, pushes main content when open */}
       <ChatPanel />
     </div>
   );

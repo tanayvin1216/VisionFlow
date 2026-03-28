@@ -14,11 +14,18 @@ export interface Point2D {
   y: number;
 }
 
-export type GestureType = 'idle' | 'pinch' | 'open_palm' | 'pointing';
+export type GestureType = 'idle' | 'pinch' | 'open_palm' | 'pointing' | 'grab' | 'peace';
 
 export interface GestureState {
   type: GestureType;
   confidence: number;
+}
+
+export interface HandData {
+  landmarks: Point2D[];
+  gesture: GestureState;
+  fingertipPosition: Point2D | null;
+  handedness: 'Left' | 'Right';
 }
 
 // MediaPipe landmark indices

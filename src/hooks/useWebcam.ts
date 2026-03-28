@@ -27,6 +27,7 @@ export function useWebcam(options: UseWebcamOptions = {}): UseWebcamReturn {
   const start = useCallback(async () => {
     try {
       setError(null);
+      console.log('Requesting webcam access...');
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -37,12 +38,48 @@ export function useWebcam(options: UseWebcamOptions = {}): UseWebcamReturn {
         audio: false,
       });
 
+      console.log('Webcam stream obtained:', stream.getVideoTracks()[0].getSettings());
       streamRef.current = stream;
 
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+
+        // Wait for video to be ready
+        await new Promise<void>((resolve, reject) => {
+          const video = videoRef.current;
+          if (!video) {
+            reject(new Error('Video element not found'));
+            return;
+          }
+
+          const onLoadedMetadata = () => {
+            console.log('Video metadata loaded:', video.videoWidth, 'x', video.videoHeight);
+            video.removeEventListener('loadedmetadata', onLoadedMetadata);
+            video.removeEventListener('error', onError);
+            resolve();
+          };
+
+          const onError = () => {
+            video.removeEventListener('loadedmetadata', onLoadedMetadata);
+            video.removeEventListener('error', onError);
+            reject(new Error('Video failed to load'));
+          };
+
+          video.addEventListener('loadedmetadata', onLoadedMetadata);
+          video.addEventListener('error', onError);
+
+          // If already loaded
+          if (video.readyState >= 1) {
+            onLoadedMetadata();
+          }
+        });
+
         await videoRef.current.play();
+        console.log('Video playing');
         setIsReady(true);
+      } else {
+        console.error('Video ref not available');
+        setError('Video element not initialized');
       }
     } catch (err) {
       const message =

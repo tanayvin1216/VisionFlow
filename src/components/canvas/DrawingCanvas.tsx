@@ -9,10 +9,43 @@ interface DrawingCanvasProps {
   height: number;
 }
 
+// Simple smoothing filter
+class SmoothingFilter {
+  private history: Point2D[] = [];
+  private maxHistory = 5;
+
+  filter(point: Point2D): Point2D {
+    this.history.push(point);
+    if (this.history.length > this.maxHistory) {
+      this.history.shift();
+    }
+
+    // Weighted average (more recent = higher weight)
+    let totalWeight = 0;
+    let x = 0;
+    let y = 0;
+
+    for (let i = 0; i < this.history.length; i++) {
+      const weight = i + 1;
+      x += this.history[i].x * weight;
+      y += this.history[i].y * weight;
+      totalWeight += weight;
+    }
+
+    return { x: x / totalWeight, y: y / totalWeight };
+  }
+
+  reset() {
+    this.history = [];
+  }
+}
+
 export function DrawingCanvas({ width, height }: DrawingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const lastPointRef = useRef<Point2D | null>(null);
+  const filterRef = useRef(new SmoothingFilter());
   const isDrawingRef = useRef(false);
+  const lastPointRef = useRef<Point2D | null>(null);
+  const palmHoldRef = useRef<number | null>(null);
 
   const {
     currentGesture,
@@ -22,153 +55,114 @@ export function DrawingCanvas({ width, height }: DrawingCanvasProps) {
     finishCurrentStroke,
     clearDrawing,
     setMode,
+    mode,
   } = useAppStore();
 
-  // Convert normalized coordinates to canvas coordinates
-  const toCanvasCoords = useCallback(
-    (point: Point2D): Point2D => ({
-      x: (1 - point.x) * width, // Mirror X for natural drawing
-      y: point.y * height,
+  // Convert to canvas coords (mirrored)
+  const toCanvas = useCallback(
+    (p: Point2D): Point2D => ({
+      x: (1 - p.x) * width,
+      y: p.y * height,
     }),
     [width, height]
   );
 
-  // Handle gesture changes
+  // Handle drawing state
   useEffect(() => {
     const isPinching = currentGesture.type === 'pinch';
     const isOpenPalm = currentGesture.type === 'open_palm';
 
-    // Start drawing on pinch
+    // START drawing when pinching
     if (isPinching && !isDrawingRef.current) {
       isDrawingRef.current = true;
-      setMode('drawing');
+      filterRef.current.reset();
       lastPointRef.current = null;
+      setMode('drawing');
     }
 
-    // Stop drawing when not pinching
+    // STOP drawing when not pinching
     if (!isPinching && isDrawingRef.current) {
       isDrawingRef.current = false;
       finishCurrentStroke();
-      setMode('idle');
+      if (mode === 'drawing') setMode('idle');
     }
 
-    // Clear on open palm (held for a moment)
-    if (isOpenPalm && currentGesture.confidence > 0.7) {
-      clearDrawing();
+    // CLEAR on palm hold (800ms)
+    if (isOpenPalm) {
+      if (!palmHoldRef.current) {
+        palmHoldRef.current = Date.now();
+      } else if (Date.now() - palmHoldRef.current > 800) {
+        clearDrawing();
+        palmHoldRef.current = null;
+      }
+    } else {
+      palmHoldRef.current = null;
     }
-  }, [currentGesture, finishCurrentStroke, clearDrawing, setMode]);
+  }, [currentGesture, finishCurrentStroke, clearDrawing, setMode, mode]);
 
   // Add points while drawing
   useEffect(() => {
     if (!isDrawingRef.current || !fingertipPosition) return;
 
-    const canvasPoint = toCanvasCoords(fingertipPosition);
+    const raw = toCanvas(fingertipPosition);
+    const smooth = filterRef.current.filter(raw);
 
-    // Only add point if it's far enough from the last point (reduces jitter)
+    // Min distance between points
     if (lastPointRef.current) {
-      const distance = Math.sqrt(
-        Math.pow(canvasPoint.x - lastPointRef.current.x, 2) +
-          Math.pow(canvasPoint.y - lastPointRef.current.y, 2)
+      const dist = Math.hypot(
+        smooth.x - lastPointRef.current.x,
+        smooth.y - lastPointRef.current.y
       );
-      if (distance < 3) return; // Minimum distance threshold
+      if (dist < 2) return;
     }
 
-    addPointToCurrentStroke(canvasPoint);
-    lastPointRef.current = canvasPoint;
-  }, [fingertipPosition, addPointToCurrentStroke, toCanvasCoords]);
+    addPointToCurrentStroke(smooth);
+    lastPointRef.current = smooth;
+  }, [fingertipPosition, toCanvas, addPointToCurrentStroke]);
 
-  // Draw all strokes
+  // Render
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !ctx) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Clear canvas
     ctx.clearRect(0, 0, width, height);
-
-    // Set drawing style
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    // Draw completed strokes
-    for (const stroke of drawing.strokes) {
-      if (stroke.length < 2) continue;
+    // Completed strokes - white
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 5;
+    drawing.strokes.forEach((s) => drawSmoothLine(ctx, s));
 
-      ctx.beginPath();
-      ctx.moveTo(stroke[0].x, stroke[0].y);
-
-      // Use quadratic curves for smooth lines
-      for (let i = 1; i < stroke.length - 1; i++) {
-        const xc = (stroke[i].x + stroke[i + 1].x) / 2;
-        const yc = (stroke[i].y + stroke[i + 1].y) / 2;
-        ctx.quadraticCurveTo(stroke[i].x, stroke[i].y, xc, yc);
-      }
-
-      // Last point
-      if (stroke.length > 1) {
-        const last = stroke[stroke.length - 1];
-        ctx.lineTo(last.x, last.y);
-      }
-
-      ctx.stroke();
-    }
-
-    // Draw current stroke
-    if (drawing.currentStroke.length >= 2) {
-      ctx.beginPath();
-      ctx.moveTo(drawing.currentStroke[0].x, drawing.currentStroke[0].y);
-
-      for (let i = 1; i < drawing.currentStroke.length - 1; i++) {
-        const xc = (drawing.currentStroke[i].x + drawing.currentStroke[i + 1].x) / 2;
-        const yc = (drawing.currentStroke[i].y + drawing.currentStroke[i + 1].y) / 2;
-        ctx.quadraticCurveTo(
-          drawing.currentStroke[i].x,
-          drawing.currentStroke[i].y,
-          xc,
-          yc
-        );
-      }
-
-      const last = drawing.currentStroke[drawing.currentStroke.length - 1];
-      ctx.lineTo(last.x, last.y);
-
-      // Add glow effect for current stroke
+    // Current stroke - white with blue glow
+    if (drawing.currentStroke.length > 1) {
       ctx.shadowColor = '#3b82f6';
-      ctx.shadowBlur = 10;
-      ctx.stroke();
+      ctx.shadowBlur = 15;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 5;
+      drawSmoothLine(ctx, drawing.currentStroke);
       ctx.shadowBlur = 0;
     }
-  }, [drawing, width, height]);
 
-  // Draw cursor at fingertip position
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !fingertipPosition) return;
+    // Cursor
+    if (fingertipPosition) {
+      const p = toCanvas(fingertipPosition);
+      const active = isDrawingRef.current;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+      if (active) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 14, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(59, 130, 246, 0.25)';
+        ctx.fill();
+      }
 
-    const point = toCanvasCoords(fingertipPosition);
-
-    // Draw cursor circle
-    ctx.beginPath();
-    ctx.arc(point.x, point.y, isDrawingRef.current ? 8 : 5, 0, 2 * Math.PI);
-    ctx.fillStyle = isDrawingRef.current ? '#3b82f6' : 'rgba(255, 255, 255, 0.5)';
-    ctx.fill();
-
-    // Draw outer ring when drawing
-    if (isDrawingRef.current) {
       ctx.beginPath();
-      ctx.arc(point.x, point.y, 12, 0, 2 * Math.PI);
-      ctx.strokeStyle = 'rgba(59, 130, 246, 0.5)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      ctx.arc(p.x, p.y, active ? 7 : 5, 0, Math.PI * 2);
+      ctx.fillStyle = active ? '#3b82f6' : 'rgba(255,255,255,0.5)';
+      ctx.fill();
     }
-  }, [fingertipPosition, toCanvasCoords]);
+  }, [drawing, fingertipPosition, width, height, toCanvas]);
 
   return (
     <canvas
@@ -178,4 +172,25 @@ export function DrawingCanvas({ width, height }: DrawingCanvasProps) {
       className="absolute inset-0 pointer-events-none z-10"
     />
   );
+}
+
+function drawSmoothLine(ctx: CanvasRenderingContext2D, points: Point2D[]) {
+  if (points.length < 2) return;
+
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+
+  if (points.length === 2) {
+    ctx.lineTo(points[1].x, points[1].y);
+  } else {
+    for (let i = 1; i < points.length - 1; i++) {
+      const xc = (points[i].x + points[i + 1].x) / 2;
+      const yc = (points[i].y + points[i + 1].y) / 2;
+      ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+    }
+    const last = points[points.length - 1];
+    ctx.lineTo(last.x, last.y);
+  }
+
+  ctx.stroke();
 }

@@ -29,6 +29,16 @@ const modeConfig = {
     color: 'bg-green-500',
     textColor: 'text-green-400',
   },
+  model: {
+    label: 'Model',
+    color: 'bg-orange-500',
+    textColor: 'text-orange-400',
+  },
+  annotate: {
+    label: 'Annotate',
+    color: 'bg-teal-500',
+    textColor: 'text-teal-400',
+  },
 };
 
 export function ModeIndicator() {

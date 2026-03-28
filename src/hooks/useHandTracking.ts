@@ -7,13 +7,13 @@ import {
   type HandLandmarkerResult,
 } from '@mediapipe/tasks-vision';
 import type { NormalizedLandmark } from '@mediapipe/tasks-vision';
-import type { GestureState, Point2D } from '@/types/hand-tracking';
+import type { GestureState, Point2D, HandData } from '@/types/hand-tracking';
 import { LANDMARK_INDICES } from '@/types/hand-tracking';
 
 interface UseHandTrackingOptions {
   onResults?: (results: HandLandmarkerResult) => void;
   onGesture?: (gesture: GestureState) => void;
-  onFingertip?: (position: Point2D | null) => void;
+  onHandsDetected?: (hands: HandData[]) => void;
 }
 
 interface UseHandTrackingReturn {
@@ -25,10 +25,117 @@ interface UseHandTrackingReturn {
   fps: number;
 }
 
+function computePinchMidpoint(
+  landmarks: NormalizedLandmark[]
+): Point2D {
+  const thumbTip = landmarks[LANDMARK_INDICES.THUMB_TIP];
+  const indexTip = landmarks[LANDMARK_INDICES.INDEX_TIP];
+  return {
+    x: (thumbTip.x + indexTip.x) / 2,
+    y: (thumbTip.y + indexTip.y) / 2,
+  };
+}
+
+function computeFingertipPosition(
+  landmarks: NormalizedLandmark[],
+  gesture: GestureState
+): Point2D {
+  if (gesture.type === 'pinch') {
+    return computePinchMidpoint(landmarks);
+  }
+  const indexTip = landmarks[LANDMARK_INDICES.INDEX_TIP];
+  return { x: indexTip.x, y: indexTip.y };
+}
+
+function detectGesture(landmarks: NormalizedLandmark[]): GestureState {
+  if (landmarks.length === 0) {
+    return { type: 'idle', confidence: 0 };
+  }
+
+  const thumbTip = landmarks[LANDMARK_INDICES.THUMB_TIP];
+  const indexTip = landmarks[LANDMARK_INDICES.INDEX_TIP];
+  const indexPip = landmarks[LANDMARK_INDICES.INDEX_PIP];
+  const indexMcp = landmarks[LANDMARK_INDICES.INDEX_MCP];
+  const middleTip = landmarks[LANDMARK_INDICES.MIDDLE_TIP];
+  const middleMcp = landmarks[LANDMARK_INDICES.MIDDLE_MCP];
+  const middlePip = landmarks[LANDMARK_INDICES.MIDDLE_PIP];
+  const ringTip = landmarks[LANDMARK_INDICES.RING_TIP];
+  const ringMcp = landmarks[LANDMARK_INDICES.RING_MCP];
+  const pinkyTip = landmarks[LANDMARK_INDICES.PINKY_TIP];
+  const pinkyMcp = landmarks[LANDMARK_INDICES.PINKY_MCP];
+
+  const thumbIndexDist = Math.hypot(
+    thumbTip.x - indexTip.x,
+    thumbTip.y - indexTip.y
+  );
+
+  const indexExtended = indexTip.y < indexPip.y && indexTip.y < indexMcp.y;
+  const middleExtended = middleTip.y < middleMcp.y;
+  const middleCurled = middleTip.y > middleMcp.y;
+  const ringCurled = ringTip.y > ringMcp.y;
+  const pinkyCurled = pinkyTip.y > pinkyMcp.y;
+
+  const allExtended =
+    indexTip.y < indexMcp.y &&
+    middleTip.y < middleMcp.y &&
+    ringTip.y < ringMcp.y &&
+    pinkyTip.y < pinkyMcp.y;
+
+  const allCurled = !indexExtended && middleCurled && ringCurled && pinkyCurled;
+
+  // Pinch: thumb tip and index tip within 0.05 normalized distance
+  if (thumbIndexDist < 0.05) {
+    return { type: 'pinch', confidence: 0.95 };
+  }
+
+  // Open palm: all fingers extended
+  if (allExtended) {
+    return { type: 'open_palm', confidence: 0.9 };
+  }
+
+  // Peace: index + middle extended, ring + pinky curled
+  if (indexExtended && middleExtended && ringCurled && pinkyCurled) {
+    return { type: 'peace', confidence: 0.9 };
+  }
+
+  // Pointing: index extended, others curled
+  if (indexExtended && middleCurled && ringCurled && pinkyCurled) {
+    return { type: 'pointing', confidence: 0.95 };
+  }
+
+  // Grab: all fingers curled
+  if (allCurled) {
+    return { type: 'grab', confidence: 0.85 };
+  }
+
+  return { type: 'idle', confidence: 0.5 };
+}
+
+function buildHandData(
+  landmarks: NormalizedLandmark[],
+  handedness: 'Left' | 'Right'
+): HandData {
+  const gesture = detectGesture(landmarks);
+  const fingertipPosition = computeFingertipPosition(landmarks, gesture);
+  const point2DLandmarks: Point2D[] = landmarks.map((l) => ({
+    x: l.x,
+    y: l.y,
+  }));
+
+  return { landmarks: point2DLandmarks, gesture, fingertipPosition, handedness };
+}
+
+function parseHandedness(
+  handednessResult: { categoryName: string; score: number }[]
+): 'Left' | 'Right' {
+  const category = handednessResult[0]?.categoryName;
+  return category === 'Left' ? 'Left' : 'Right';
+}
+
 export function useHandTracking(
   options: UseHandTrackingOptions = {}
 ): UseHandTrackingReturn {
-  const { onResults, onGesture, onFingertip } = options;
+  const { onResults, onGesture, onHandsDetected } = options;
 
   const handLandmarkerRef = useRef<HandLandmarker | null>(null);
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
@@ -38,77 +145,20 @@ export function useHandTracking(
   const fpsTimeRef = useRef<number>(0);
   const isRunningRef = useRef(false);
 
-  // Store callbacks in refs to avoid stale closures
   const onResultsRef = useRef(onResults);
   const onGestureRef = useRef(onGesture);
-  const onFingertipRef = useRef(onFingertip);
+  const onHandsDetectedRef = useRef(onHandsDetected);
 
   useEffect(() => {
     onResultsRef.current = onResults;
     onGestureRef.current = onGesture;
-    onFingertipRef.current = onFingertip;
-  }, [onResults, onGesture, onFingertip]);
+    onHandsDetectedRef.current = onHandsDetected;
+  }, [onResults, onGesture, onHandsDetected]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fps, setFps] = useState(0);
-
-  // Detect gesture from landmarks
-  const detectGesture = useCallback(
-    (landmarks: NormalizedLandmark[]): GestureState => {
-      if (landmarks.length === 0) {
-        return { type: 'idle', confidence: 0 };
-      }
-
-      const thumbTip = landmarks[LANDMARK_INDICES.THUMB_TIP];
-      const indexTip = landmarks[LANDMARK_INDICES.INDEX_TIP];
-      const middleTip = landmarks[LANDMARK_INDICES.MIDDLE_TIP];
-      const ringTip = landmarks[LANDMARK_INDICES.RING_TIP];
-      const pinkyTip = landmarks[LANDMARK_INDICES.PINKY_TIP];
-
-      // Calculate pinch distance (thumb to index)
-      const pinchDistance = Math.sqrt(
-        Math.pow(thumbTip.x - indexTip.x, 2) +
-          Math.pow(thumbTip.y - indexTip.y, 2)
-      );
-
-      // Pinch gesture - thumb and index finger close together
-      if (pinchDistance < 0.05) {
-        return { type: 'pinch', confidence: 1 - pinchDistance / 0.05 };
-      }
-
-      // Open palm - all fingers extended (tips above MCP joints)
-      const indexMcp = landmarks[LANDMARK_INDICES.INDEX_MCP];
-      const middleMcp = landmarks[LANDMARK_INDICES.MIDDLE_MCP];
-      const ringMcp = landmarks[LANDMARK_INDICES.RING_MCP];
-      const pinkyMcp = landmarks[LANDMARK_INDICES.PINKY_MCP];
-
-      const fingersExtended =
-        indexTip.y < indexMcp.y &&
-        middleTip.y < middleMcp.y &&
-        ringTip.y < ringMcp.y &&
-        pinkyTip.y < pinkyMcp.y;
-
-      if (fingersExtended) {
-        return { type: 'open_palm', confidence: 0.8 };
-      }
-
-      // Pointing - only index finger extended
-      const onlyIndexExtended =
-        indexTip.y < indexMcp.y &&
-        middleTip.y > middleMcp.y &&
-        ringTip.y > ringMcp.y &&
-        pinkyTip.y > pinkyMcp.y;
-
-      if (onlyIndexExtended) {
-        return { type: 'pointing', confidence: 0.9 };
-      }
-
-      return { type: 'idle', confidence: 0.5 };
-    },
-    []
-  );
 
   // Initialize MediaPipe
   useEffect(() => {
@@ -127,10 +177,10 @@ export function useHandTracking(
             delegate: 'GPU',
           },
           runningMode: 'VIDEO',
-          numHands: 1,
-          minHandDetectionConfidence: 0.5,
-          minHandPresenceConfidence: 0.5,
-          minTrackingConfidence: 0.5,
+          numHands: 2,
+          minHandDetectionConfidence: 0.7,
+          minHandPresenceConfidence: 0.7,
+          minTrackingConfidence: 0.7,
         });
 
         if (mounted) {
@@ -139,9 +189,7 @@ export function useHandTracking(
         }
       } catch (err) {
         if (mounted) {
-          const message =
-            err instanceof Error ? err.message : 'Failed to initialize hand tracking';
-          setError(message);
+          setError(err instanceof Error ? err.message : 'Failed to load');
           setIsLoading(false);
         }
       }
@@ -151,37 +199,30 @@ export function useHandTracking(
 
     return () => {
       mounted = false;
-      if (handLandmarkerRef.current) {
-        handLandmarkerRef.current.close();
-      }
+      handLandmarkerRef.current?.close();
     };
   }, []);
 
-  // Detection loop using regular function with refs
+  // Detection loop - 60fps target
   useEffect(() => {
     function detect() {
       if (!isRunningRef.current) return;
 
-      const videoElement = videoElementRef.current;
+      const video = videoElementRef.current;
+      const handLandmarker = handLandmarkerRef.current;
 
-      if (
-        !handLandmarkerRef.current ||
-        !videoElement ||
-        videoElement.readyState < 2
-      ) {
+      if (!handLandmarker || !video || video.readyState < 2) {
         animationFrameRef.current = requestAnimationFrame(detect);
         return;
       }
 
       const now = performance.now();
 
-      // Only process if enough time has passed (target ~30fps for performance)
-      if (now - lastTimeRef.current < 33) {
+      if (now - lastTimeRef.current < 16) {
         animationFrameRef.current = requestAnimationFrame(detect);
         return;
       }
 
-      // FPS calculation
       frameCountRef.current++;
       if (now - fpsTimeRef.current >= 1000) {
         setFps(frameCountRef.current);
@@ -190,62 +231,50 @@ export function useHandTracking(
       }
 
       try {
-        const results = handLandmarkerRef.current.detectForVideo(
-          videoElement,
-          now
-        );
-
-        if (onResultsRef.current) {
-          onResultsRef.current(results);
-        }
+        const results = handLandmarker.detectForVideo(video, now);
+        onResultsRef.current?.(results);
 
         if (results.landmarks && results.landmarks.length > 0) {
-          const landmarks = results.landmarks[0];
+          const detectedHands: HandData[] = results.landmarks.map(
+            (landmarks, index) => {
+              const handednessData = results.handedness[index];
+              const handedness = handednessData
+                ? parseHandedness(handednessData)
+                : 'Right';
+              return buildHandData(landmarks, handedness);
+            }
+          );
 
-          // Detect gesture
-          const gesture = detectGesture(landmarks);
-          if (onGestureRef.current) {
-            onGestureRef.current(gesture);
-          }
+          onHandsDetectedRef.current?.(detectedHands);
 
-          // Get fingertip position (index finger tip)
-          const indexTip = landmarks[LANDMARK_INDICES.INDEX_TIP];
-          if (onFingertipRef.current) {
-            onFingertipRef.current({
-              x: indexTip.x,
-              y: indexTip.y,
-            });
-          }
+          const primaryGesture = detectedHands[0]?.gesture ?? {
+            type: 'idle' as const,
+            confidence: 0,
+          };
+          onGestureRef.current?.(primaryGesture);
         } else {
-          if (onGestureRef.current) {
-            onGestureRef.current({ type: 'idle', confidence: 0 });
-          }
-          if (onFingertipRef.current) {
-            onFingertipRef.current(null);
-          }
+          onHandsDetectedRef.current?.([]);
+          onGestureRef.current?.({ type: 'idle', confidence: 0 });
         }
-      } catch (err) {
-        console.error('Hand tracking error:', err);
+      } catch {
+        // Silent fail on detection errors
       }
 
       lastTimeRef.current = now;
       animationFrameRef.current = requestAnimationFrame(detect);
     }
 
-    if (isRunning) {
-      detect();
-    }
+    if (isRunning) detect();
 
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isRunning, detectGesture]);
+  }, [isRunning]);
 
   const start = useCallback((videoElement: HTMLVideoElement) => {
     if (isRunningRef.current) return;
-
     videoElementRef.current = videoElement;
     isRunningRef.current = true;
     setIsRunning(true);

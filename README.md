@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VisionFlow
 
-## Getting Started
+A gesture-based AI assistant demo that combines MediaPipe hand tracking with Gemini Vision API. Draw in the air with hand gestures, speak prompts via Whispr Flow, and get intelligent AI analysis.
 
-First, run the development server:
+## Demo for Whispr Flow Internship Application
+
+This project demonstrates the powerful combination of:
+- **Gesture Input** - Draw equations, diagrams, or notes in the air
+- **Voice Transcription** - Speak your prompts naturally (via Whispr Flow)
+- **Multimodal AI** - Gemini Vision analyzes your drawings and responds intelligently
+
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Install dependencies
+pnpm install
+
+# Add your Gemini API key
+cp .env.example .env.local
+# Edit .env.local and add your key from https://aistudio.google.com/apikey
+
+# Start development server
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to Use
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Draw**: Pinch your thumb and index finger together to draw in the air
+2. **Clear**: Open your palm to clear the drawing
+3. **Speak**: Use Whispr Flow to transcribe your voice (runs externally)
+4. **Submit**: Press Enter to send your drawing + prompt to Gemini AI
 
-## Learn More
+## Gestures
 
-To learn more about Next.js, take a look at the following resources:
+| Gesture | Action |
+|---------|--------|
+| 👌 Pinch | Start/stop drawing |
+| ✋ Open Palm | Clear canvas |
+| ⌨️ Enter | Submit for AI analysis |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Hand Tracking**: @mediapipe/tasks-vision
+- **Animations**: Framer Motion
+- **State**: Zustand
+- **AI**: Google Gemini 1.5 Flash Vision API
+- **Styling**: Tailwind CSS
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/
+│   ├── api/analyze/     # Gemini API route
+│   └── page.tsx         # Main page
+├── components/
+│   ├── canvas/          # Hand tracking, drawing
+│   ├── textbox/         # Invisible input, submit overlay
+│   └── ui/              # Mode indicator, FPS counter
+├── hooks/               # useWebcam, useHandTracking, useSubmitFlow
+├── lib/
+│   ├── canvas/          # Drawing capture utilities
+│   └── store/           # Zustand state
+└── types/               # TypeScript types
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Environment Variables
+
+```env
+GEMINI_API_KEY=your_api_key_here
+```
+
+Get your API key from [Google AI Studio](https://aistudio.google.com/apikey)

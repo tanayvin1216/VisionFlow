@@ -10,6 +10,10 @@ interface UseSubmitFlowReturn {
   reset: () => void;
 }
 
+function generateMessageId(): string {
+  return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
 export function useSubmitFlow(): UseSubmitFlowReturn {
   const [canvasImage, setCanvasImage] = useState<string | null>(null);
 
@@ -21,33 +25,36 @@ export function useSubmitFlow(): UseSubmitFlowReturn {
     setResponse,
     setIsLoading,
     clearDrawing,
+    addMessage,
+    setChatOpen,
   } = useAppStore();
 
   const submit = useCallback(
     async (dimensions: { width: number; height: number }) => {
-      // Capture drawing
       const image = captureDrawingAsImage(drawing, dimensions.width, dimensions.height);
       setCanvasImage(image);
 
-      // Start submit animation
-      setMode('submitting');
+      // Open chat panel and show user message immediately
+      setChatOpen(true);
+      addMessage({
+        id: generateMessageId(),
+        role: 'user',
+        content: inputText || '(no prompt)',
+        timestamp: Date.now(),
+        image,
+      });
 
-      // Simulate sending to API (will be replaced with real Gemini call)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Clear input text after capturing it for the message
+      setInputText('');
 
-      // Transition to thinking
-      setMode('thinking');
       setIsLoading(true);
+      setMode('thinking');
 
       try {
-        // Call Gemini API
         const response = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            image: image,
-            prompt: inputText,
-          }),
+          body: JSON.stringify({ image, prompt: inputText }),
         });
 
         if (!response.ok) {
@@ -56,17 +63,28 @@ export function useSubmitFlow(): UseSubmitFlowReturn {
 
         const data = await response.json();
         setResponse(data.response);
+        addMessage({
+          id: generateMessageId(),
+          role: 'assistant',
+          content: data.response,
+          timestamp: Date.now(),
+        });
       } catch (error) {
+        const errorText = 'Sorry, I could not analyze your drawing. Please make sure you have set up your Gemini API key.';
         console.error('Error analyzing drawing:', error);
-        setResponse(
-          'Sorry, I could not analyze your drawing. Please make sure you have set up your Gemini API key.'
-        );
+        setResponse(errorText);
+        addMessage({
+          id: generateMessageId(),
+          role: 'assistant',
+          content: errorText,
+          timestamp: Date.now(),
+        });
       } finally {
         setIsLoading(false);
         setMode('response');
       }
     },
-    [drawing, inputText, setMode, setIsLoading, setResponse]
+    [drawing, inputText, setMode, setIsLoading, setResponse, addMessage, setChatOpen]
   );
 
   const reset = useCallback(() => {

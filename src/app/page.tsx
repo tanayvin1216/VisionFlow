@@ -80,7 +80,7 @@ export default function Home() {
               letterSpacing: '-0.01em',
             }}
           >
-            Welcome back,
+            Welcome back, Tanay
           </h1>
           <div className="flex items-center gap-5" style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
             <span>
@@ -146,7 +146,7 @@ export default function Home() {
               className="absolute bottom-4 left-5 z-20"
               style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}
             >
-              pinch to draw &middot; open palm to clear
+              pinch to draw &middot; two hands to clear
             </div>
           )}
         </div>

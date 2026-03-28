@@ -51,6 +51,7 @@ export function DrawingCanvas({ width, height }: DrawingCanvasProps) {
     currentGesture,
     fingertipPosition,
     drawing,
+    hands,
     addPointToCurrentStroke,
     finishCurrentStroke,
     clearDrawing,
@@ -97,11 +98,11 @@ export function DrawingCanvas({ width, height }: DrawingCanvasProps) {
       if (mode === 'drawing') setMode('idle');
     }
 
-    // CLEAR on palm hold (800ms)
-    if (isOpenPalm) {
+    // CLEAR when two hands detected
+    if (hands.length >= 2) {
       if (!palmHoldRef.current) {
         palmHoldRef.current = Date.now();
-      } else if (Date.now() - palmHoldRef.current > 800) {
+      } else if (Date.now() - palmHoldRef.current > 500) {
         clearDrawing();
         palmHoldRef.current = null;
       }

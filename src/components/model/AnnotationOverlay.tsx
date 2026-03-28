@@ -94,10 +94,11 @@ export function AnnotationOverlay() {
       finishAnnotationStroke();
     }
 
-    if (isOpenPalm) {
+    // Clear when two hands detected
+    if (hands.length >= 2) {
       if (!palmHoldRef.current) {
         palmHoldRef.current = Date.now();
-      } else if (Date.now() - palmHoldRef.current > 800) {
+      } else if (Date.now() - palmHoldRef.current > 500) {
         clearAnnotations();
         palmHoldRef.current = null;
       }

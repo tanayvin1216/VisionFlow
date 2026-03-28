@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import { HandTracking } from '@/components/canvas';
 import { InvisibleTextbox } from '@/components/textbox';
 import { ChatPanel } from '@/components/chat';
-import { Sidebar } from '@/components/layout';
+import { Sidebar, InfoModal } from '@/components/layout';
 import { useSubmitFlow } from '@/hooks/useSubmitFlow';
 import { usePeaceGestureSwitch } from '@/hooks/usePeaceGestureSwitch';
 import { useAppStore } from '@/lib/store/app-store';
@@ -223,6 +223,9 @@ export default function Home() {
 
       {/* Chat panel — inline, pushes main content when open */}
       <ChatPanel />
+
+      {/* Info/tutorial modal */}
+      <InfoModal />
     </div>
   );
 }

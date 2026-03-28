@@ -84,6 +84,10 @@ interface AppState {
   messages: ChatMessage[];
   addMessage: (message: ChatMessage) => void;
   clearMessages: () => void;
+
+  // Info modal
+  infoOpen: boolean;
+  setInfoOpen: (open: boolean) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -184,4 +188,8 @@ export const useAppStore = create<AppState>((set) => ({
   addMessage: (message) =>
     set((state) => ({ messages: [...state.messages, message] })),
   clearMessages: () => set({ messages: [] }),
+
+  // Info modal
+  infoOpen: false,
+  setInfoOpen: (infoOpen) => set({ infoOpen }),
 }));

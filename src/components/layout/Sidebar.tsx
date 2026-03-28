@@ -227,10 +227,25 @@ export function Sidebar() {
           <ChatIcon />
           <span>Chat</span>
         </button>
-        <div className="flex items-center gap-3 w-full" style={{ padding: '8px 12px', fontSize: 13, color: '#6B6560' }}>
+        <button
+          onClick={() => useAppStore.getState().setInfoOpen(true)}
+          className="flex items-center gap-3 w-full text-left"
+          style={{
+            padding: '8px 12px',
+            borderRadius: 8,
+            fontSize: 13,
+            color: '#6B6560',
+            background: 'transparent',
+            transition: 'background 0.15s ease',
+            cursor: 'pointer',
+            border: 'none',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = '#FAF7F4'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+        >
           <SettingsIcon />
           <span>Settings</span>
-        </div>
+        </button>
         <div className="flex items-center gap-3 w-full" style={{ padding: '8px 12px', fontSize: 13, color: '#6B6560' }}>
           <HelpIcon />
           <span>Help</span>

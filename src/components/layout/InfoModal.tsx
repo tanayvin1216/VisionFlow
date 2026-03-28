@@ -186,25 +186,27 @@ export function InfoModal() {
             onClick={handleClose}
           />
 
-          {/* Modal card */}
+          {/* Modal card — centered via flexbox on a full-screen container */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 10 }}
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="fixed z-50 flex"
-            style={{
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: 'min(720px, 90vw)',
-              height: 'min(480px, 80vh)',
-              background: '#FFFFFF',
-              borderRadius: 14,
-              boxShadow: '0 20px 60px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.08)',
-              overflow: 'hidden',
-            }}
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ pointerEvents: 'none' }}
           >
+            <div
+              className="flex"
+              style={{
+                width: 'min(720px, 90vw)',
+                height: 'min(480px, 80vh)',
+                background: '#FFFFFF',
+                borderRadius: 14,
+                boxShadow: '0 20px 60px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.08)',
+                overflow: 'hidden',
+                pointerEvents: 'auto',
+              }}
+            >
             {/* Left nav */}
             <div
               className="shrink-0 flex flex-col py-5"
@@ -289,6 +291,7 @@ export function InfoModal() {
             >
               &times;
             </button>
+            </div>
           </motion.div>
         </>
       )}

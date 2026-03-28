@@ -90,7 +90,7 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — you'll need a webcam.
+Open ([(https://visionflow-eta.vercel.app/)](https://visionflow-eta.vercel.app/)) — you'll need a webcam.
 
 ### Environment Variables
 

@@ -56,6 +56,7 @@ export function DrawingCanvas({ width, height }: DrawingCanvasProps) {
     clearDrawing,
     setMode,
     mode,
+    interactionMode,
   } = useAppStore();
 
   // Convert to canvas coords (mirrored)
@@ -67,8 +68,17 @@ export function DrawingCanvas({ width, height }: DrawingCanvasProps) {
     [width, height]
   );
 
-  // Handle drawing state
+  // Handle drawing state — only in draw mode
   useEffect(() => {
+    // Skip gesture processing when not in draw mode
+    if (interactionMode !== 'draw') {
+      if (isDrawingRef.current) {
+        isDrawingRef.current = false;
+        finishCurrentStroke();
+      }
+      return;
+    }
+
     const isPinching = currentGesture.type === 'pinch';
     const isOpenPalm = currentGesture.type === 'open_palm';
 
@@ -98,7 +108,7 @@ export function DrawingCanvas({ width, height }: DrawingCanvasProps) {
     } else {
       palmHoldRef.current = null;
     }
-  }, [currentGesture, finishCurrentStroke, clearDrawing, setMode, mode]);
+  }, [currentGesture, finishCurrentStroke, clearDrawing, setMode, mode, interactionMode]);
 
   // Add points while drawing
   useEffect(() => {

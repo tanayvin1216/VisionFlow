@@ -14,12 +14,37 @@ function generateMessageId(): string {
   return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
+function captureVisibleScene(): string | null {
+  // Try to capture the Three.js canvas (3D scene)
+  const threeCanvas = document.querySelector('canvas[data-engine]') as HTMLCanvasElement | null;
+  if (!threeCanvas) return null;
+
+  // Create composite canvas with 3D scene + annotation overlay
+  const composite = document.createElement('canvas');
+  composite.width = threeCanvas.width;
+  composite.height = threeCanvas.height;
+  const ctx = composite.getContext('2d');
+  if (!ctx) return null;
+
+  // Draw the 3D scene
+  ctx.drawImage(threeCanvas, 0, 0, composite.width, composite.height);
+
+  // Overlay annotation canvas if present
+  const annotationCanvas = document.querySelector('canvas[style*="z-index: 30"]') as HTMLCanvasElement | null;
+  if (annotationCanvas) {
+    ctx.drawImage(annotationCanvas, 0, 0, composite.width, composite.height);
+  }
+
+  return composite.toDataURL('image/png');
+}
+
 export function useSubmitFlow(): UseSubmitFlowReturn {
   const [canvasImage, setCanvasImage] = useState<string | null>(null);
 
   const {
     drawing,
     inputText,
+    interactionMode,
     setMode,
     setInputText,
     setResponse,
@@ -31,15 +56,22 @@ export function useSubmitFlow(): UseSubmitFlowReturn {
 
   const submit = useCallback(
     async (dimensions: { width: number; height: number }) => {
-      const image = captureDrawingAsImage(drawing, dimensions.width, dimensions.height);
+      // Capture the right content based on current mode
+      const isModelMode = interactionMode === 'model' || interactionMode === 'annotate';
+      const image = isModelMode
+        ? captureVisibleScene()
+        : captureDrawingAsImage(drawing, dimensions.width, dimensions.height);
+
       setCanvasImage(image);
+
+      const prompt = inputText;
 
       // Open chat panel and show user message immediately
       setChatOpen(true);
       addMessage({
         id: generateMessageId(),
         role: 'user',
-        content: inputText || '(no prompt)',
+        content: prompt || '(no prompt)',
         timestamp: Date.now(),
         image,
       });
@@ -54,11 +86,11 @@ export function useSubmitFlow(): UseSubmitFlowReturn {
         const response = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image, prompt: inputText }),
+          body: JSON.stringify({ image, prompt }),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to analyze drawing');
+          throw new Error('Failed to analyze');
         }
 
         const data = await response.json();
@@ -70,8 +102,8 @@ export function useSubmitFlow(): UseSubmitFlowReturn {
           timestamp: Date.now(),
         });
       } catch (error) {
-        const errorText = 'Sorry, I could not analyze your drawing. Please make sure you have set up your Gemini API key.';
-        console.error('Error analyzing drawing:', error);
+        const errorText = 'Sorry, I could not analyze. Please check your API key.';
+        console.error('Error analyzing:', error);
         setResponse(errorText);
         addMessage({
           id: generateMessageId(),
@@ -84,7 +116,7 @@ export function useSubmitFlow(): UseSubmitFlowReturn {
         setMode('response');
       }
     },
-    [drawing, inputText, setMode, setIsLoading, setResponse, addMessage, setChatOpen]
+    [drawing, inputText, interactionMode, setMode, setIsLoading, setResponse, addMessage, setChatOpen, setInputText]
   );
 
   const reset = useCallback(() => {

@@ -103,8 +103,6 @@ function GesturesContent() {
       </h2>
       <InfoRow title="Pinch to Draw" description="Bring thumb and index finger together to start drawing" badge="Draw Mode" />
       <InfoRow title="Open Palm to Clear" description="Show open palm for 0.8 seconds to clear the canvas" badge="Draw Mode" />
-      <InfoRow title="Peace Sign" description="Hold peace gesture for 0.5s to switch between modes" badge="All Modes" />
-      <InfoRow title="Grab to Rotate" description="Make a fist and move hand to rotate the 3D model" badge="3D Mode" />
       <InfoRow title="Two Hands Zoom" description="Use both hands to pinch-zoom and pan the 3D model" badge="3D Mode" />
       <InfoRow title="Pinch Annotate" description="Pinch to draw annotations over the 3D model" badge="Annotate" />
     </>
@@ -149,7 +147,6 @@ function ShortcutsContent() {
       <InfoRow title="Switch to 3D Model" description="Activates 3D model interaction mode" badge="2" />
       <InfoRow title="Switch to Annotate" description="Activates annotation overlay on 3D model" badge="3" />
       <InfoRow title="Submit" description="Send current drawing + text prompt to AI for analysis" badge="Enter" />
-      <InfoRow title="Peace Gesture Hold" description="Hold peace sign for 0.5s to cycle through modes" badge="&#9996;" />
     </>
   );
 }

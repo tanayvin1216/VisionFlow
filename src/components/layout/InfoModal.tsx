@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '@/lib/store/app-store';
 
-type Section = 'gestures' | 'modes' | 'voice' | 'shortcuts';
+type Section = 'gestures' | 'modes' | 'voice';
 
 interface NavItem {
   id: Section;
@@ -43,20 +43,10 @@ function MicIcon() {
   );
 }
 
-function KeyboardIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="1" y="3" width="14" height="10" rx="1.5" />
-      <path d="M4 6.5h1M7.5 6.5h1M11 6.5h1M4 9.5h1M6 9.5h4M11 9.5h1" />
-    </svg>
-  );
-}
-
 const NAV_ITEMS: NavItem[] = [
   { id: 'gestures', label: 'Gestures', icon: <HandGestureIcon /> },
   { id: 'modes', label: 'Modes', icon: <LayersIcon /> },
   { id: 'voice', label: 'Voice Input', icon: <MicIcon /> },
-  { id: 'shortcuts', label: 'Shortcuts', icon: <KeyboardIcon /> },
 ];
 
 interface InfoRowProps {
@@ -137,25 +127,10 @@ function VoiceContent() {
   );
 }
 
-function ShortcutsContent() {
-  return (
-    <>
-      <h2 style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 22, fontWeight: 400, color: '#1A1A1A', marginBottom: 24 }}>
-        Shortcuts
-      </h2>
-      <InfoRow title="Switch to Draw" description="Activates draw mode and clears the canvas" badge="1" />
-      <InfoRow title="Switch to 3D Model" description="Activates 3D model interaction mode" badge="2" />
-      <InfoRow title="Switch to Annotate" description="Activates annotation overlay on 3D model" badge="3" />
-      <InfoRow title="Submit" description="Send current drawing + text prompt to AI for analysis" badge="Enter" />
-    </>
-  );
-}
-
 const SECTION_CONTENT: Record<Section, () => React.JSX.Element> = {
   gestures: GesturesContent,
   modes: ModesContent,
   voice: VoiceContent,
-  shortcuts: ShortcutsContent,
 };
 
 export function InfoModal() {

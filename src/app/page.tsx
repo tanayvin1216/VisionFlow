@@ -61,23 +61,8 @@ export default function Home() {
 
   usePeaceGestureSwitch();
 
-  useEffect(() => {
-    function handleKeySwitch(e: KeyboardEvent) {
-      const tag = (e.target as HTMLElement).tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-
-      if (e.key === '1') {
-        setInteractionMode('draw');
-        clearDrawing();
-      } else if (e.key === '2') {
-        setInteractionMode('model');
-      } else if (e.key === '3') {
-        setInteractionMode('annotate');
-      }
-    }
-    window.addEventListener('keydown', handleKeySwitch);
-    return () => window.removeEventListener('keydown', handleKeySwitch);
-  }, [setInteractionMode, clearDrawing]);
+  void setInteractionMode;
+  void clearDrawing;
 
   const handleSubmit = useCallback(() => {
     if (!containerRef.current) return;
@@ -95,6 +80,14 @@ export default function Home() {
 
   const isDrawMode = interactionMode === 'draw';
   const isModelOrAnnotate = interactionMode === 'model' || interactionMode === 'annotate';
+
+  // Trigger resize recalculation when chat opens/closes so hand tracking re-measures
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [chatOpen]);
 
   void canvasImage;
   void reset;

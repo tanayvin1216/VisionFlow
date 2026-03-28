@@ -15,8 +15,8 @@ export interface ModelGroupHandle {
 const ROTATION_SENSITIVITY = 5.0;
 const SCALE_MIN = 0.3;
 const SCALE_MAX = 6;
-const SMOOTHING = 0.35;
-const VELOCITY_DECAY = 0.85;
+const SMOOTHING = 0.4;
+const VELOCITY_DECAY = 0.88;
 const VELOCITY_THRESHOLD = 0.0001;
 
 interface PreviousHandState {
@@ -34,10 +34,8 @@ interface Velocity {
   posY: number;
 }
 
-function isInteracting(hand: HandData): boolean {
-  // Any detected hand controls the model — natural behavior
-  // Only 'idle' (no hand / unrecognized) is excluded
-  return hand.gesture.type !== 'idle';
+function isPinching(hand: HandData): boolean {
+  return hand.gesture.type === 'pinch';
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -57,7 +55,7 @@ export const HandModelControls = forwardRef<ModelGroupHandle, HandModelControlsP
     const targetPosition = useRef(new THREE.Vector3());
     const targetScale = useRef(1);
     const velocity = useRef<Velocity>({ rotX: 0, rotY: 0, posX: 0, posY: 0 });
-    const isGrabbing = useRef(false);
+    const wasActive = useRef(false);
 
     useImperativeHandle(ref, () => ({
       get group() {
@@ -74,7 +72,6 @@ export const HandModelControls = forwardRef<ModelGroupHandle, HandModelControlsP
     }
 
     function applyInertia() {
-      // When no hand is grabbing, apply decaying velocity for momentum
       velocity.current.rotX *= VELOCITY_DECAY;
       velocity.current.rotY *= VELOCITY_DECAY;
       velocity.current.posX *= VELOCITY_DECAY;
@@ -95,24 +92,25 @@ export const HandModelControls = forwardRef<ModelGroupHandle, HandModelControlsP
       const { hands, interactionMode } = useAppStore.getState();
 
       if (interactionMode !== 'annotate') {
-        const activeHands = hands.filter(isInteracting);
+        // Only pinching hands control the model
+        const pinchingHands = hands.filter(isPinching);
 
-        if (activeHands.length === 1) {
-          applyOneHandRotation(activeHands[0]);
-          isGrabbing.current = true;
-        } else if (activeHands.length >= 2) {
-          applyTwoHandTransform(activeHands[0], activeHands[1]);
-          isGrabbing.current = true;
+        if (pinchingHands.length === 1) {
+          applyOneHandRotation(pinchingHands[0]);
+          wasActive.current = true;
+        } else if (pinchingHands.length >= 2) {
+          applyTwoHandZoom(pinchingHands[0], pinchingHands[1]);
+          wasActive.current = true;
         } else {
-          if (isGrabbing.current) {
-            isGrabbing.current = false;
+          if (wasActive.current) {
+            wasActive.current = false;
           }
           prevState.current = null;
           applyInertia();
         }
       } else {
         prevState.current = null;
-        isGrabbing.current = false;
+        wasActive.current = false;
         applyInertia();
       }
 
@@ -124,7 +122,7 @@ export const HandModelControls = forwardRef<ModelGroupHandle, HandModelControlsP
       if (!pos) return;
 
       if (prevState.current) {
-        // Negate dx because webcam mirrors X — moving right in real life decreases pos.x
+        // Negate dx because webcam mirrors X
         const dx = -(pos.x - prevState.current.singleX);
         const dy = pos.y - prevState.current.singleY;
 
@@ -147,7 +145,7 @@ export const HandModelControls = forwardRef<ModelGroupHandle, HandModelControlsP
       };
     }
 
-    function applyTwoHandTransform(handA: HandData, handB: HandData) {
+    function applyTwoHandZoom(handA: HandData, handB: HandData) {
       const posA = handA.fingertipPosition;
       const posB = handB.fingertipPosition;
       if (!posA || !posB) return;
@@ -156,10 +154,11 @@ export const HandModelControls = forwardRef<ModelGroupHandle, HandModelControlsP
       const midpoint = computeMidpoint(posA, posB);
 
       if (prevState.current && prevState.current.twoDistance > 0) {
+        // Pinch-to-zoom: distance between two pinch points
         const scaleRatio = distance / prevState.current.twoDistance;
         targetScale.current = clamp(targetScale.current * scaleRatio, SCALE_MIN, SCALE_MAX);
 
-        // Negate X for webcam mirror, negate Y for screen-to-3D coordinate flip
+        // Pan based on midpoint movement
         const panX = -(midpoint.x - prevState.current.twoMidX) * 5;
         const panY = -(midpoint.y - prevState.current.twoMidY) * 5;
         velocity.current.posX = panX;

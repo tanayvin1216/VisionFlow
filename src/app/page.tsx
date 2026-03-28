@@ -110,10 +110,10 @@ export default function Home() {
       >
         {/* Scrollable inner content */}
         <div className="flex-1 overflow-y-auto">
-          <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 40px', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+          <div style={{ padding: '20px 40px 24px', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
 
             {/* Header */}
-            <div className="flex items-baseline justify-between mb-6 shrink-0">
+            <div className="flex items-baseline justify-between mb-4 shrink-0">
               <h1
                 style={{
                   fontFamily: 'var(--font-playfair), serif',
@@ -148,7 +148,7 @@ export default function Home() {
                 borderRadius: 14,
                 background: '#0A0A0A',
                 flex: '1 1 0',
-                minHeight: 360,
+                minHeight: 420,
                 boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
               }}
             >
@@ -182,7 +182,7 @@ export default function Home() {
             </div>
 
             {/* TODAY activity log — below the canvas */}
-            <div className="shrink-0 mt-6 pb-8">
+            <div className="shrink-0 mt-4 pb-6">
               <p
                 style={{
                   fontSize: 12,

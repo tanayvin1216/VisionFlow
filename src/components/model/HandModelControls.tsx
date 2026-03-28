@@ -123,7 +123,8 @@ export const HandModelControls = forwardRef<ModelGroupHandle, HandModelControlsP
       if (!pos) return;
 
       if (prevState.current) {
-        const dx = pos.x - prevState.current.singleX;
+        // Negate dx because webcam mirrors X — moving right in real life decreases pos.x
+        const dx = -(pos.x - prevState.current.singleX);
         const dy = pos.y - prevState.current.singleY;
 
         const cappedDx = clamp(dx, -0.05, 0.05);
@@ -157,8 +158,9 @@ export const HandModelControls = forwardRef<ModelGroupHandle, HandModelControlsP
         const scaleRatio = distance / prevState.current.twoDistance;
         targetScale.current = clamp(targetScale.current * scaleRatio, SCALE_MIN, SCALE_MAX);
 
-        const panX = (midpoint.x - prevState.current.twoMidX) * -5;
-        const panY = (midpoint.y - prevState.current.twoMidY) * 5;
+        // Negate X for webcam mirror, negate Y for screen-to-3D coordinate flip
+        const panX = -(midpoint.x - prevState.current.twoMidX) * 5;
+        const panY = -(midpoint.y - prevState.current.twoMidY) * 5;
         velocity.current.posX = panX;
         velocity.current.posY = panY;
         targetPosition.current.x += panX;

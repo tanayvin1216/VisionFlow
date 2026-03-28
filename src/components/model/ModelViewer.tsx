@@ -40,7 +40,7 @@ function orientationFromNormal(normal: THREE.Vector3): THREE.Quaternion {
   return quat;
 }
 
-// Simplified HA spike — single stalk + head (2 meshes instead of 7)
+// HA spike — stalk + glossy head
 function HASpike({ position, quaternion }: {
   position: THREE.Vector3;
   quaternion: THREE.Quaternion;
@@ -48,18 +48,18 @@ function HASpike({ position, quaternion }: {
   return (
     <group position={position} quaternion={quaternion}>
       <mesh position={[0, 0.275, 0]}>
-        <cylinderGeometry args={[0.025, 0.035, 0.55, 6]} />
-        <meshStandardMaterial color="#5c9e5c" roughness={0.35} />
+        <cylinderGeometry args={[0.025, 0.035, 0.55, 8]} />
+        <meshPhysicalMaterial color="#5c9e5c" roughness={0.35} metalness={0.05} clearcoat={0.5} clearcoatRoughness={0.3} />
       </mesh>
       <mesh position={[0, 0.61, 0]}>
-        <sphereGeometry args={[0.09, 8, 8]} />
-        <meshStandardMaterial color="#4caf50" roughness={0.25} emissive="#2e7d32" emissiveIntensity={0.06} />
+        <sphereGeometry args={[0.09, 12, 12]} />
+        <meshPhysicalMaterial color="#4caf50" roughness={0.25} metalness={0.08} clearcoat={0.7} clearcoatRoughness={0.15} emissive="#2e7d32" emissiveIntensity={0.08} />
       </mesh>
     </group>
   );
 }
 
-// Simplified NA spike — single stalk + box head (2 meshes instead of 5)
+// NA spike — stalk + glossy box head
 function NASpike({ position, quaternion }: {
   position: THREE.Vector3;
   quaternion: THREE.Quaternion;
@@ -67,47 +67,50 @@ function NASpike({ position, quaternion }: {
   return (
     <group position={position} quaternion={quaternion}>
       <mesh position={[0, 0.175, 0]}>
-        <cylinderGeometry args={[0.015, 0.02, 0.35, 6]} />
-        <meshStandardMaterial color="#e65100" roughness={0.35} />
+        <cylinderGeometry args={[0.015, 0.02, 0.35, 8]} />
+        <meshPhysicalMaterial color="#e65100" roughness={0.35} metalness={0.05} clearcoat={0.4} />
       </mesh>
       <mesh position={[0, 0.39, 0]}>
         <boxGeometry args={[0.1, 0.06, 0.1]} />
-        <meshStandardMaterial color="#ff6d00" roughness={0.25} emissive="#e65100" emissiveIntensity={0.05} />
+        <meshPhysicalMaterial color="#ff6d00" roughness={0.25} metalness={0.1} clearcoat={0.6} emissive="#e65100" emissiveIntensity={0.06} />
       </mesh>
     </group>
   );
 }
 
-// M2 ion channel — single cylinder (1 mesh instead of 2)
+// M2 ion channel
 function M2Channel({ position, quaternion }: {
   position: THREE.Vector3;
   quaternion: THREE.Quaternion;
 }) {
   return (
     <mesh position={position} quaternion={quaternion}>
-      <cylinderGeometry args={[0.025, 0.025, 0.16, 6]} />
-      <meshStandardMaterial color="#7986cb" roughness={0.4} transparent opacity={0.85} />
+      <cylinderGeometry args={[0.025, 0.025, 0.16, 8]} />
+      <meshPhysicalMaterial color="#7986cb" roughness={0.4} metalness={0.1} clearcoat={0.4} transparent opacity={0.85} />
     </mesh>
   );
 }
 
-// RNP segment — tube only, no individual beads
+// RNP segment — glossy tube
 function RNPSegment({ curvePoints, color }: {
   curvePoints: THREE.Vector3[];
   color: string;
 }) {
   const tubeGeometry = useMemo(() => {
     const curve = new THREE.CatmullRomCurve3(curvePoints, false, 'catmullrom', 0.5);
-    return new THREE.TubeGeometry(curve, 20, 0.06, 6, false);
+    return new THREE.TubeGeometry(curve, 24, 0.06, 8, false);
   }, [curvePoints]);
 
   return (
     <mesh geometry={tubeGeometry}>
-      <meshStandardMaterial
+      <meshPhysicalMaterial
         color={color}
         roughness={0.4}
+        metalness={0.05}
+        clearcoat={0.5}
+        clearcoatRoughness={0.3}
         emissive={color}
-        emissiveIntensity={0.04}
+        emissiveIntensity={0.05}
       />
     </mesh>
   );
@@ -182,12 +185,14 @@ function InfluenzaVirion() {
     <group ref={groupRef}>
       {/* Lipid bilayer envelope */}
       <mesh>
-        <sphereGeometry args={[ENVELOPE_RADIUS, 32, 32]} />
-        <meshStandardMaterial
+        <sphereGeometry args={[ENVELOPE_RADIUS, 48, 48]} />
+        <meshPhysicalMaterial
           color="#c8b89a"
           roughness={0.5}
+          metalness={0.02}
           transparent
-          opacity={0.15}
+          opacity={0.18}
+          clearcoat={0.3}
           side={THREE.DoubleSide}
           depthWrite={false}
         />
@@ -195,12 +200,13 @@ function InfluenzaVirion() {
 
       {/* M1 matrix protein layer */}
       <mesh>
-        <sphereGeometry args={[M1_RADIUS, 24, 24]} />
-        <meshStandardMaterial
+        <sphereGeometry args={[M1_RADIUS, 32, 32]} />
+        <meshPhysicalMaterial
           color="#78909c"
           roughness={0.45}
+          metalness={0.08}
           transparent
-          opacity={0.1}
+          opacity={0.12}
           wireframe
           depthWrite={false}
         />
@@ -248,11 +254,13 @@ function InfluenzaVirion() {
         return (
           <mesh key={`pol-${i}`} position={endPoint}>
             <dodecahedronGeometry args={[0.07, 0]} />
-            <meshStandardMaterial
+            <meshPhysicalMaterial
               color="#f06292"
               roughness={0.3}
+              metalness={0.1}
+              clearcoat={0.5}
               emissive="#c2185b"
-              emissiveIntensity={0.06}
+              emissiveIntensity={0.08}
             />
           </mesh>
         );

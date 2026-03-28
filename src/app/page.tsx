@@ -118,8 +118,8 @@ export default function Home() {
             </div>
           )}
 
-          {/* Invisible textbox for voice input */}
-          {!chatOpen && isDrawMode && <InvisibleTextbox onSubmit={handleSubmit} />}
+          {/* Invisible textbox for voice input — available in all modes when chat is closed */}
+          {!chatOpen && <InvisibleTextbox onSubmit={handleSubmit} />}
 
           {/* Contextual hints - bottom of canvas card */}
           {mode === 'idle' && !chatOpen && isDrawMode && (

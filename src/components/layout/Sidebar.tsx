@@ -3,18 +3,33 @@
 import { useAppStore } from '@/lib/store/app-store';
 import type { InteractionMode } from '@/lib/store/app-store';
 
-function PencilIcon() {
+/* ── Icons matching Wispr Flow's clean line-icon style ── */
+
+function WaveformIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12.5 2.5l3 3L6 15H3v-3z" />
-      <path d="M10.5 4.5l3 3" />
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+      <rect x="1" y="7" width="2.5" height="6" rx="1" />
+      <rect x="5.5" y="4" width="2.5" height="12" rx="1" />
+      <rect x="10" y="2" width="2.5" height="16" rx="1" />
+      <rect x="14.5" y="5" width="2.5" height="10" rx="1" />
+    </svg>
+  );
+}
+
+function GridIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="5.5" height="5.5" rx="1" />
+      <rect x="10.5" y="2" width="5.5" height="5.5" rx="1" />
+      <rect x="2" y="10.5" width="5.5" height="5.5" rx="1" />
+      <rect x="10.5" y="10.5" width="5.5" height="5.5" rx="1" />
     </svg>
   );
 }
 
 function CubeIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
       <path d="M9 1.5L15.5 5.25v7.5L9 16.5 2.5 12.75v-7.5z" />
       <path d="M9 8.75v7.75" />
       <path d="M9 8.75L2.5 5.25" />
@@ -25,29 +40,36 @@ function CubeIcon() {
 
 function MarkerIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 15l2-7L13.5 1.5l3 3L10 13z" />
-      <path d="M9.5 5.5l3 3" />
-      <path d="M3 15l2.5-1.5" />
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12.5 2.5l3 3L6 15H3v-3z" />
+      <path d="M10.5 4.5l3 3" />
     </svg>
   );
 }
 
 function ChatIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 3h12a1 1 0 011 1v8a1 1 0 01-1 1H6l-3 3V4a1 1 0 011-1z" />
     </svg>
   );
 }
 
-function HandIcon() {
+function SettingsIcon() {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 11V6a2 2 0 00-4 0" />
-      <path d="M14 10V4a2 2 0 00-4 0v7" />
-      <path d="M10 10.5V6a2 2 0 00-4 0v8" />
-      <path d="M18 11a2 2 0 014 0v3a8 8 0 01-8 8h-2a8 8 0 01-6-2.7" />
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="9" r="2.5" />
+      <path d="M14.7 11.1a1.2 1.2 0 00.2 1.3l.05.04a1.45 1.45 0 11-2.05 2.06l-.04-.05a1.2 1.2 0 00-1.3-.2 1.2 1.2 0 00-.73 1.1v.12a1.45 1.45 0 11-2.9 0v-.07a1.2 1.2 0 00-.79-1.1 1.2 1.2 0 00-1.3.2l-.04.05a1.45 1.45 0 11-2.06-2.06l.05-.04a1.2 1.2 0 00.2-1.3 1.2 1.2 0 00-1.1-.73h-.12a1.45 1.45 0 010-2.9h.07a1.2 1.2 0 001.1-.79 1.2 1.2 0 00-.2-1.3l-.05-.04A1.45 1.45 0 115.64 3.3l.04.05a1.2 1.2 0 001.3.2h.06a1.2 1.2 0 00.73-1.1v-.12a1.45 1.45 0 012.9 0v.07a1.2 1.2 0 00.73 1.1 1.2 1.2 0 001.3-.2l.04-.05a1.45 1.45 0 112.06 2.06l-.05.04a1.2 1.2 0 00-.2 1.3v.06a1.2 1.2 0 001.1.73h.12a1.45 1.45 0 010 2.9h-.07a1.2 1.2 0 00-1.1.73z" />
+    </svg>
+  );
+}
+
+function HelpIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="9" r="7" />
+      <path d="M6.8 6.8a2.2 2.2 0 014.3.7c0 1.5-2.2 2.1-2.2 2.1" />
+      <circle cx="9" cy="13" r="0.5" fill="currentColor" stroke="none" />
     </svg>
   );
 }
@@ -55,14 +77,13 @@ function HandIcon() {
 interface NavItemConfig {
   mode: InteractionMode;
   label: string;
-  shortcut: string;
   icon: React.ReactNode;
 }
 
 const NAV_ITEMS: NavItemConfig[] = [
-  { mode: 'draw', label: 'Draw', shortcut: '1', icon: <PencilIcon /> },
-  { mode: 'model', label: '3D Model', shortcut: '2', icon: <CubeIcon /> },
-  { mode: 'annotate', label: 'Annotate', shortcut: '3', icon: <MarkerIcon /> },
+  { mode: 'draw', label: 'Draw', icon: <GridIcon /> },
+  { mode: 'model', label: '3D Model', icon: <CubeIcon /> },
+  { mode: 'annotate', label: 'Annotate', icon: <MarkerIcon /> },
 ];
 
 export function Sidebar() {
@@ -72,7 +93,6 @@ export function Sidebar() {
   const toggleChat = useAppStore((s) => s.toggleChat);
   const chatOpen = useAppStore((s) => s.chatOpen);
   const fps = useAppStore((s) => s.fps);
-  const drawing = useAppStore((s) => s.drawing);
 
   function handleModeSwitch(mode: InteractionMode) {
     if (mode === 'draw') {
@@ -81,28 +101,26 @@ export function Sidebar() {
     setInteractionMode(mode);
   }
 
-  const strokeCount = drawing.strokes.length + (drawing.currentStroke.length > 0 ? 1 : 0);
-
   return (
     <aside
       className="h-full flex flex-col shrink-0"
       style={{
-        width: 230,
-        background: '#1C1917',
-        borderRight: '1px solid #2E2A26',
+        width: 200,
+        background: '#FFFFFF',
+        borderRight: '1px solid #E8E4DF',
       }}
     >
-      {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 pt-6 pb-5">
-        <span style={{ color: '#A8978A' }}>
-          <HandIcon />
+      {/* Logo — matches Wispr Flow's waveform + "Flow" + badge */}
+      <div className="flex items-center gap-2 px-5 pt-5 pb-6">
+        <span style={{ color: '#1A1A1A' }}>
+          <WaveformIcon />
         </span>
         <span
           style={{
             fontFamily: 'var(--font-playfair), serif',
-            fontSize: 19,
+            fontSize: 18,
             fontWeight: 500,
-            color: '#F5F0EB',
+            color: '#1A1A1A',
             letterSpacing: '-0.01em',
           }}
         >
@@ -111,25 +129,21 @@ export function Sidebar() {
         <span
           style={{
             fontSize: 10,
-            fontWeight: 600,
-            color: '#8A7E74',
-            background: '#2E2A26',
-            padding: '2px 7px',
+            fontWeight: 500,
+            color: '#6B6560',
+            border: '1px solid #D9D4CF',
+            padding: '1px 7px',
             borderRadius: 4,
-            letterSpacing: '0.04em',
-            textTransform: 'uppercase',
+            marginLeft: 2,
           }}
         >
-          Beta
+          Pro Trial
         </span>
       </div>
 
-      {/* Divider */}
-      <div style={{ height: 1, background: '#2E2A26', margin: '0 20px' }} />
-
       {/* Mode navigation */}
-      <nav className="px-3 mt-4 flex flex-col gap-1">
-        {NAV_ITEMS.map(({ mode, label, shortcut, icon }) => {
+      <nav className="px-3 flex flex-col gap-0.5">
+        {NAV_ITEMS.map(({ mode, label, icon }) => {
           const isActive = interactionMode === mode;
           return (
             <button
@@ -137,16 +151,18 @@ export function Sidebar() {
               onClick={() => handleModeSwitch(mode)}
               className="flex items-center gap-3 w-full text-left"
               style={{
-                padding: '10px 12px',
+                padding: '9px 12px',
                 borderRadius: 8,
                 fontSize: 14,
                 fontWeight: isActive ? 500 : 400,
-                color: isActive ? '#F5F0EB' : '#8A7E74',
-                background: isActive ? '#2E2A26' : 'transparent',
+                color: isActive ? '#1A1A1A' : '#6B6560',
+                background: isActive ? '#F5F0EB' : 'transparent',
                 transition: 'background 0.15s ease, color 0.15s ease',
+                cursor: 'pointer',
+                border: 'none',
               }}
               onMouseEnter={(e) => {
-                if (!isActive) e.currentTarget.style.background = '#252220';
+                if (!isActive) e.currentTarget.style.background = '#FAF7F4';
               }}
               onMouseLeave={(e) => {
                 if (!isActive) e.currentTarget.style.background = 'transparent';
@@ -154,75 +170,67 @@ export function Sidebar() {
               aria-pressed={isActive}
             >
               {icon}
-              <span className="flex-1">{label}</span>
-              <span
-                style={{
-                  fontSize: 11,
-                  color: isActive ? '#A8978A' : '#5C544D',
-                  fontVariantNumeric: 'tabular-nums',
-                }}
-              >
-                {shortcut}
-              </span>
+              <span>{label}</span>
             </button>
           );
         })}
       </nav>
 
-      {/* Session stats */}
+      {/* Session info card — matches Wispr Flow's trial info card */}
       <div
-        className="mx-4 mt-6 p-4"
+        className="mx-4 mt-auto mb-4 px-4 py-4"
         style={{
-          background: '#252220',
-          borderRadius: 10,
-          border: '1px solid #2E2A26',
+          borderTop: '1px solid #E8E4DF',
         }}
       >
-        <p style={{ fontSize: 11, fontWeight: 600, color: '#A8978A', marginBottom: 12, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-          Session
+        <p style={{ fontSize: 13, fontWeight: 500, color: '#1A1A1A', marginBottom: 4 }}>
+          VisionFlow Session
         </p>
-        <div className="flex flex-col gap-3">
-          <div className="flex justify-between items-center" style={{ fontSize: 13 }}>
-            <span style={{ color: '#6B6360' }}>FPS</span>
-            <span style={{ fontWeight: 500, color: '#D4CBC3', fontVariantNumeric: 'tabular-nums' }}>
-              {fps}
-            </span>
-          </div>
-          <div className="flex justify-between items-center" style={{ fontSize: 13 }}>
-            <span style={{ color: '#6B6360' }}>Strokes</span>
-            <span style={{ fontWeight: 500, color: '#D4CBC3', fontVariantNumeric: 'tabular-nums' }}>
-              {strokeCount}
-            </span>
-          </div>
-          <div className="flex justify-between items-center" style={{ fontSize: 13 }}>
-            <span style={{ color: '#6B6360' }}>Mode</span>
-            <span style={{ fontWeight: 500, color: '#D4CBC3' }}>
-              {interactionMode.charAt(0).toUpperCase() + interactionMode.slice(1)}
-            </span>
-          </div>
+        <p style={{ fontSize: 12, color: '#6B6560', marginBottom: 8 }}>
+          {fps} fps tracking
+        </p>
+        <div
+          style={{
+            height: 3,
+            background: '#E8E4DF',
+            borderRadius: 2,
+            marginBottom: 10,
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              height: '100%',
+              width: `${Math.min(fps / 30 * 100, 100)}%`,
+              background: '#7C5CFC',
+              borderRadius: 2,
+              transition: 'width 0.3s ease',
+            }}
+          />
         </div>
+        <p style={{ fontSize: 11, color: '#9E9891', lineHeight: 1.5 }}>
+          Draw in the air with hand tracking and get AI analysis
+        </p>
       </div>
 
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* Bottom actions */}
-      <div className="px-3 pb-5">
-        <div style={{ height: 1, background: '#2E2A26', marginBottom: 12, marginLeft: 8, marginRight: 8 }} />
+      {/* Bottom links — matches Wispr Flow bottom nav */}
+      <div className="px-3 pb-4 flex flex-col gap-0.5">
         <button
           onClick={toggleChat}
           className="flex items-center gap-3 w-full text-left"
           style={{
-            padding: '10px 12px',
+            padding: '8px 12px',
             borderRadius: 8,
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: chatOpen ? 500 : 400,
-            color: chatOpen ? '#F5F0EB' : '#8A7E74',
-            background: chatOpen ? '#2E2A26' : 'transparent',
+            color: chatOpen ? '#1A1A1A' : '#6B6560',
+            background: chatOpen ? '#F5F0EB' : 'transparent',
             transition: 'background 0.15s ease, color 0.15s ease',
+            cursor: 'pointer',
+            border: 'none',
           }}
           onMouseEnter={(e) => {
-            if (!chatOpen) e.currentTarget.style.background = '#252220';
+            if (!chatOpen) e.currentTarget.style.background = '#FAF7F4';
           }}
           onMouseLeave={(e) => {
             if (!chatOpen) e.currentTarget.style.background = 'transparent';
@@ -231,6 +239,28 @@ export function Sidebar() {
           <ChatIcon />
           <span>Chat</span>
         </button>
+        <div
+          className="flex items-center gap-3 w-full"
+          style={{
+            padding: '8px 12px',
+            fontSize: 13,
+            color: '#6B6560',
+          }}
+        >
+          <SettingsIcon />
+          <span>Settings</span>
+        </div>
+        <div
+          className="flex items-center gap-3 w-full"
+          style={{
+            padding: '8px 12px',
+            fontSize: 13,
+            color: '#6B6560',
+          }}
+        >
+          <HelpIcon />
+          <span>Help</span>
+        </div>
       </div>
     </aside>
   );

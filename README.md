@@ -3,7 +3,7 @@
 <br/>
 
 # VisionFlow
-### The space between thinking and doing is disappearing.
+### What if you could just use your hands and your voice?
 
 <br/>
 
@@ -18,7 +18,7 @@
 
 <br/>
 
-### A proof-of-concept for gesture-driven, voice-native computing.
+### **[Try the Live Demo →](https://visionflow-eta.vercel.app/)**
 
 <br/>
 
@@ -31,27 +31,25 @@
 
 ## The Idea
 
-We type because keyboards exist, not because typing is how humans think.
+I kept noticing how weird it is that we still type everything. You're standing at a whiteboard sketching and pointing and talking through ideas — and then you sit down at a computer and all of that turns into a cursor in a text box.
 
-Thinking is spatial. It's gestural. You sketch on a whiteboard, you point at things, you talk through problems out loud. But the moment you sit in front of a computer, all of that collapses into a cursor and a blinking text field.
+VisionFlow started as me wondering what it would feel like to skip that translation step entirely. Just use your hands to move things around, speak when you want to say something, and let the computer figure out the rest.
 
-VisionFlow is an experiment in removing that layer. You use your hands to draw in the air, pinch to manipulate a 3D model, and speak naturally to an AI — no keyboard, no mouse, no abstraction between your intent and the machine's understanding.
-
-This isn't about replacing interfaces. It's about asking: what happens when the interface disappears entirely?
+It's a proof-of-concept. I built it to see if gesture + voice + AI could actually work as one continuous loop — and honestly, it kind of does.
 
 ---
 
 ## What You're Looking At
 
-VisionFlow is a proof-of-concept that connects three input modalities into one seamless loop:
+Three things running together:
 
-**Gesture** — MediaPipe hand tracking runs in the browser at 30-60fps, detecting pinch, grab, open palm, and peace gestures from your webcam. One hand rotates a 3D model. Two hands zoom and pan. Pinch to draw annotations in the air.
+**Gesture** — MediaPipe hand tracking in the browser at 30-60fps. Pinch to draw, grab to rotate a 3D model, two hands to zoom. All from your webcam, nothing to install.
 
-**Voice** — An always-listening invisible textbox captures voice transcription from [Wispr Flow](https://wisprflow.ai), turning speech into prompts without a single keystroke.
+**Voice** — There's an invisible textbox that catches transcription from [Wispr Flow](https://wisprflow.ai). You just talk and it becomes your prompt. No clicking into a text field, no typing.
 
-**Vision AI** — Your drawings, annotations, and 3D scene are captured and sent to a multimodal AI (OpenAI, Anthropic, or Google Gemini) that sees what you see and responds to what you said.
+**Vision AI** — Whatever you drew or whatever the 3D model looks like gets screenshotted and sent to a multimodal AI (supports OpenAI, Anthropic, and Gemini). It sees what you see and answers what you asked.
 
-The result: you manipulate a 3D influenza virion with your bare hands, speak a question about its protein structure, and get an answer — all without touching a keyboard.
+So you can rotate a 3D influenza virion with your hands, ask "what are the green spikes," and get an actual answer. Without touching the keyboard once.
 
 ---
 
@@ -69,13 +67,11 @@ In every mode, speak your prompt and press Enter. The AI sees everything.
 
 ## Why This Matters
 
-The keyboard was designed in 1868. We've been typing ever since.
+Voice tools like Wispr Flow already got rid of typing for text. That's huge. But there's still a gap — you can talk to your computer, but you can't *show* it things naturally.
 
-Voice-first tools like Wispr Flow have started to chip away at that — replacing typing with speech, closing the gap between thinking and writing. VisionFlow asks: what's the next step after voice?
+That's what this is trying to explore. Your hands and your voice together are a way more complete input than either one alone. You don't describe a 3D object in words when you could just rotate it. You don't type coordinates when you could point.
 
-It's gesture. It's spatial. It's the idea that your hands and your voice together are a more complete input system than anything we've built so far. You don't describe a 3D object in words — you rotate it. You don't type coordinates — you point. You don't format a diagram — you draw it in the air.
-
-This is a demo, not a product. But it's a demo of something real: the future where doing and creating are the same thing, and the computer just keeps up.
+I don't think this is the final version of anything. But I think the direction is right — the gap between what you're thinking and what the computer understands should keep getting smaller.
 
 ---
 
@@ -117,5 +113,5 @@ Ideas, bug reports, and PRs are welcome.
 ---
 
 <div align="center">
-  The best interface is no interface.
+  Built by Tanay Vinaykya
 </div>

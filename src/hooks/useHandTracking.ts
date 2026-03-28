@@ -47,8 +47,14 @@ function computeFingertipPosition(
   return { x: indexTip.x, y: indexTip.y };
 }
 
+// Hysteresis: once pinching, require larger distance to release
+const PINCH_ENTER_THRESHOLD = 0.07;
+const PINCH_EXIT_THRESHOLD = 0.10;
+let wasPinching = false;
+
 function detectGesture(landmarks: NormalizedLandmark[]): GestureState {
   if (landmarks.length === 0) {
+    wasPinching = false;
     return { type: 'idle', confidence: 0 };
   }
 
@@ -83,10 +89,13 @@ function detectGesture(landmarks: NormalizedLandmark[]): GestureState {
 
   const allCurled = !indexExtended && middleCurled && ringCurled && pinkyCurled;
 
-  // Pinch: thumb tip and index tip within 0.05 normalized distance
-  if (thumbIndexDist < 0.05) {
+  // Pinch with hysteresis — easier to enter, harder to exit
+  const pinchThreshold = wasPinching ? PINCH_EXIT_THRESHOLD : PINCH_ENTER_THRESHOLD;
+  if (thumbIndexDist < pinchThreshold) {
+    wasPinching = true;
     return { type: 'pinch', confidence: 0.95 };
   }
+  wasPinching = false;
 
   // Open palm: all fingers extended
   if (allExtended) {
@@ -178,9 +187,9 @@ export function useHandTracking(
           },
           runningMode: 'VIDEO',
           numHands: 2,
-          minHandDetectionConfidence: 0.7,
-          minHandPresenceConfidence: 0.7,
-          minTrackingConfidence: 0.7,
+          minHandDetectionConfidence: 0.5,
+          minHandPresenceConfidence: 0.5,
+          minTrackingConfidence: 0.5,
         });
 
         if (mounted) {

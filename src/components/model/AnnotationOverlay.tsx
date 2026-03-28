@@ -7,7 +7,7 @@ import type { Point2D } from '@/types/hand-tracking';
 
 class SmoothingFilter {
   private history: Point2D[] = [];
-  private readonly maxHistory = 5;
+  private readonly maxHistory = 3;
 
   filter(point: Point2D): Point2D {
     this.history.push(point);

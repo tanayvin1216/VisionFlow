@@ -12,7 +12,7 @@ interface DrawingCanvasProps {
 // Simple smoothing filter
 class SmoothingFilter {
   private history: Point2D[] = [];
-  private maxHistory = 5;
+  private maxHistory = 3;
 
   filter(point: Point2D): Point2D {
     this.history.push(point);

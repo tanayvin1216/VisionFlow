@@ -148,7 +148,7 @@ export default function Home() {
                 borderRadius: 14,
                 background: '#0A0A0A',
                 flex: '1 1 0',
-                minHeight: 420,
+                minHeight: 520,
                 boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
               }}
             >
